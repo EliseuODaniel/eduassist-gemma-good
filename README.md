@@ -9,6 +9,8 @@ This repository is intentionally smaller than the source EduAssist platform. It
 contains only synthetic data, a demo app, a local Gemma 4 runtime recipe, and the
 submission writeup assets needed for a public hackathon repo.
 
+![EduAssist Local submission cover](docs/submission/assets/eduassist-local-cover.svg)
+
 ## Why this project
 
 Schools often need to answer operational and student-support questions without
@@ -43,8 +45,8 @@ Official references used for this design:
 
 - Kaggle challenge: https://www.kaggle.com/competitions/gemma-4-good-hackathon
 - Gemma 4 launch: https://blog.google/innovation-and-ai/technology/developers-tools/gemma-4/
-- Gemma 4 model card: https://ai.google.dev/gemma/docs/core/model_card_4
-- Gemma 4 function calling guide: https://ai.google.dev/gemma/docs/capabilities/text/function-calling-gemma4
+- Gemma model card: https://ai.google.dev/gemma/docs/model_card
+- Gemma function calling guide: https://ai.google.dev/gemma/docs/capabilities/function-calling
 
 ## Quick start
 
@@ -120,6 +122,8 @@ Current local validation:
 - `infra/compose/` - local Gemma 4 E4B service and optional demo-web service.
 - `docs/submission/` - hackathon writeup, demo script, evaluation plan, and
   implementation status.
+- `docs/submission/kaggle-submission.md` - title, summary, writeup, links, and
+  final checklist for the Kaggle form.
 
 ## Safety posture
 

@@ -68,7 +68,7 @@ class DemoEngine:
         if self.use_llm and self.settings.gemma_enable_planner:
             response = self.gemma.chat(
                 planner_prompt(question, persona, detected_student_id),
-                max_tokens=900,
+                max_tokens=350,
                 temperature=0.0,
             )
             if response is not None:
@@ -152,7 +152,7 @@ class DemoEngine:
         if self.use_llm and self.settings.gemma_enable_composer:
             response = self.gemma.chat(
                 composition_prompt(question, persona, results),
-                max_tokens=650,
+                max_tokens=420,
             )
             if response is not None:
                 return response.text, "gemma"

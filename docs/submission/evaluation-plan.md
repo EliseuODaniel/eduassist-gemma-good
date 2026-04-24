@@ -42,6 +42,9 @@ On April 24, 2026, the suite passed with the local Gemma runtime enabled:
 - Result: 24/24 cases passed, pass rate 1.0.
 - Coverage: public document search, authorized protected snapshots, study-plan
   tool calls, and restricted-data denials all used Gemma-planned tool traces.
+- Final pre-submission rerun: `uv run python -m
+  eduassist_gemma_good.eval_runner --use-llm` returned `24/24`, pass rate
+  `1.0`, with every row reporting runtime `gemma`.
 
 This is not a benchmark of raw model intelligence. It is a product regression
 suite that tests the core promises of the submission:
