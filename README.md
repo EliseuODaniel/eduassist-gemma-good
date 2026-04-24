@@ -1,20 +1,21 @@
-# EduAssist Local for Gemma 4 Good
+# EduAssist Field Kit for Gemma 4 Good
 
-EduAssist Local is a Gemma 4 Good hackathon fork of the EduAssist school service
-platform. It demonstrates a local-first assistant for schools and families in
-low-connectivity contexts, using Gemma 4 as the central reasoning and response
-engine while deterministic tools enforce access control and evidence grounding.
+EduAssist Field Kit is a Gemma 4 Good hackathon fork of the EduAssist school
+service platform. It demonstrates a local-first assistant for schools and
+families in low-connectivity contexts, using Gemma 4 as the central reasoning
+and response engine while deterministic tools enforce access control and
+evidence grounding.
 
 This repository is intentionally smaller than the source EduAssist platform. It
 contains only synthetic data, a demo app, a local Gemma 4 runtime recipe, and the
 submission writeup assets needed for a public hackathon repo.
 
-![EduAssist Local submission cover](docs/submission/assets/eduassist-local-cover.svg)
+![EduAssist Field Kit submission cover](docs/submission/assets/eduassist-local-cover.svg)
 
 ## Why this project
 
 Schools often need to answer operational and student-support questions without
-depending on a cloud LLM for every private interaction. EduAssist Local shows a
+depending on a cloud LLM for every private interaction. EduAssist Field Kit shows a
 privacy-preserving flow:
 
 1. A family member or school staff user asks a question.
@@ -36,6 +37,13 @@ OpenAI-compatible HTTP API. The app uses Gemma in two places:
 - tool planning: pick from a small, validated set of school-assistance tools;
 - grounded composition: generate the final answer from retrieved evidence and
   policy decisions.
+
+The orchestration is a lightweight custom planner-executor-composer loop rather
+than LangGraph or a specialist supervisor. That keeps the public hackathon fork
+easy to run locally and makes each tool, policy decision, and retrieved evidence
+item visible in the UI trace. Public retrieval is local weighted lexical search
+with bilingual query expansion and auditable `rank`, `score`, and
+`matched_terms` metadata.
 
 If the local model is unavailable, the app falls back to a deterministic planner
 and composer so judges can still inspect the product flow. The intended
@@ -139,6 +147,8 @@ Current local validation:
 - `infra/compose/` - local Gemma 4 E4B service and optional demo-web service.
 - `docs/submission/` - hackathon writeup, demo script, evaluation plan, and
   implementation status.
+- `docs/strategy/orchestration-and-retrieval.md` - architecture decision for the
+  custom orchestration loop and local retrieval path.
 - `docs/submission/kaggle-submission.md` - title, summary, writeup, links, and
   final checklist for the Kaggle form.
 

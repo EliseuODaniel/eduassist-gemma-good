@@ -4,8 +4,9 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
+from .retrieval import retrieve_public_documents
 from .schema import Evidence
-from .text_utils import compact_excerpt, tokens
+from .text_utils import tokens
 
 
 @dataclass(frozen=True)
@@ -22,24 +23,18 @@ class DemoDataStore:
         self.students = self._load_students()
 
     def search_public(self, query: str, *, limit: int = 3) -> tuple[Evidence, ...]:
-        query_tokens = tokens(query)
-        scored: list[tuple[int, PublicDocument]] = []
-        for doc in self.public_documents:
-            doc_tokens = tokens(f"{doc.title} {doc.body}")
-            score = len(query_tokens & doc_tokens)
-            if score:
-                scored.append((score, doc))
-        if not scored:
-            scored = [(0, doc) for doc in self.public_documents[:limit]]
-        scored.sort(key=lambda item: (item[0], item[1].title), reverse=True)
         return tuple(
-            Evidence(
-                source_id=doc.source_id,
-                title=doc.title,
-                excerpt=compact_excerpt(doc.body, query),
-                access="public",
+            result.evidence
+            for result in retrieve_public_documents(query, self.public_documents, limit=limit)
+        )
+
+    def search_public_with_metadata(self, query: str, *, limit: int = 3) -> tuple[dict, ...]:
+        return tuple(
+            result.payload(rank=index)
+            for index, result in enumerate(
+                retrieve_public_documents(query, self.public_documents, limit=limit),
+                start=1,
             )
-            for _, doc in scored[:limit]
         )
 
     def get_student(self, student_id: str) -> dict:

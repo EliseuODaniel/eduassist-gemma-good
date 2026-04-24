@@ -54,8 +54,22 @@ TOOL_REGISTRY: dict[str, ToolDefinition] = {
                             "title": {"type": "string"},
                             "excerpt": {"type": "string"},
                             "access": {"type": "string", "const": "public"},
+                            "rank": {"type": "integer"},
+                            "score": {"type": "number"},
+                            "matched_terms": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                            },
                         },
-                        "required": ["source_id", "title", "excerpt", "access"],
+                        "required": [
+                            "source_id",
+                            "title",
+                            "excerpt",
+                            "access",
+                            "rank",
+                            "score",
+                            "matched_terms",
+                        ],
                     },
                 }
             },

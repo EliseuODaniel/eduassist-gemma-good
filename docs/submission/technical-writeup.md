@@ -2,7 +2,7 @@
 
 ## Project
 
-EduAssist Local is a local-first school assistance workflow for families and
+EduAssist Field Kit is a local-first school assistance workflow for families and
 school staff. It targets schools that need useful AI support while preserving
 student privacy, working during unreliable connectivity, and keeping protected
 data behind deterministic access controls.
@@ -41,6 +41,19 @@ The repository uses a deliberately small tool surface. Gemma 4 can propose a
 tool call, but the Python application validates names, arguments, and persona
 scope before execution. Protected data is never exposed directly to the model
 unless the deterministic policy layer approves it for the selected persona.
+
+The orchestration is a lightweight custom planner-executor-composer loop. It
+does not use LangGraph or the specialist supervisor architecture from the larger
+EduAssist platform because this public hackathon fork needs minimal local setup,
+short audit paths, and a very small tool surface. The design keeps Gemma central
+while leaving policy and data access in deterministic Python.
+
+Public retrieval is local and auditable. The first MVP used simple token
+intersection; the Field Kit branch now uses weighted lexical retrieval with
+bilingual query expansion, title/body weighting, phrase bonuses, stopword
+filtering, and `rank`/`score`/`matched_terms` metadata in the tool payload. The
+protected student path is not retrieval-based; it is a scoped deterministic
+lookup after persona authorization.
 
 ## How Gemma 4 is used
 

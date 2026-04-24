@@ -193,6 +193,7 @@ def render_trace(response: AssistantResponse) -> None:
         tool_status = escape_html(result.status)
         proposed_by = escape_html(result.call.proposed_by)
         arguments = escape_html(json.dumps(result.call.arguments, ensure_ascii=False))
+        retrieval_metadata = _retrieval_metadata_html(result.payload)
         st.markdown(
             f"""
             <div class="ea-band">
@@ -203,6 +204,7 @@ def render_trace(response: AssistantResponse) -> None:
                 <span class="ea-pill">output: {output_contract_html}</span>
                 <span class="ea-pill">planned by: {proposed_by}</span>
                 <span class="ea-pill">arguments: {arguments}</span>
+                {retrieval_metadata}
             </div>
             """,
             unsafe_allow_html=True,
@@ -231,6 +233,32 @@ def render_trace(response: AssistantResponse) -> None:
         st.subheader("Safety notes")
         for note in response.safety_notes:
             st.write(f"- {note}")
+
+
+def _retrieval_metadata_html(payload: dict) -> str:
+    documents = payload.get("documents", [])
+    if not isinstance(documents, list):
+        return ""
+    rows: list[str] = []
+    for document in documents:
+        if not isinstance(document, dict) or "score" not in document:
+            continue
+        rank = escape_html(document.get("rank", ""))
+        source_id = escape_html(document.get("source_id", ""))
+        score = escape_html(document.get("score", ""))
+        raw_terms = document.get("matched_terms", ())
+        if not isinstance(raw_terms, list):
+            raw_terms = []
+        matched_terms = ", ".join(str(term) for term in raw_terms[:5])
+        rows.append(
+            '<span class="ea-pill">'
+            f"retrieval: #{rank} {source_id} score {score} "
+            f"terms {escape_html(matched_terms)}"
+            "</span>"
+        )
+    if not rows:
+        return ""
+    return "<br />" + "".join(rows)
 
 
 def render_action_output(output: ActionOutput) -> None:

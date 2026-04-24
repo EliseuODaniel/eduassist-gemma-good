@@ -340,6 +340,10 @@ Exit criteria:
 
 Goal: make the branch submission-ready.
 
+Implementation status: in progress. The architecture/retrieval decision is now
+documented, and public retrieval has been upgraded with local weighted lexical
+ranking plus bilingual query expansion.
+
 Tasks:
 
 - Finalize README for Field Kit.

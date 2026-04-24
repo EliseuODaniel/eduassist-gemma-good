@@ -20,12 +20,31 @@ the local model id returned by `/v1/models`.
 Narration:
 
 ```text
-EduAssist Local is a Gemma 4 Good project for schools that need useful AI
+EduAssist Field Kit is a Gemma 4 Good project for schools that need useful AI
 support without sending every private student question to a cloud model. Gemma 4
 runs locally, while narrow deterministic tools keep data access auditable.
 ```
 
-## Scene 2: Public school information, 0:35-1:20
+## Scene 2: Document intake, 0:35-1:15
+
+Demo scenario: Document intake.
+Sample notice: `enrollment-support-notice.md`.
+
+Show:
+
+- local notice text extraction;
+- important dates/documents/support channels;
+- family checklist and school message draft.
+
+Narration:
+
+```text
+The Field Kit starts from the kind of artifact families actually bring to school:
+a notice, PDF, or photo. This path runs locally and turns confusing instructions
+into dates, documents, and next actions.
+```
+
+## Scene 3: Public school information, 1:15-1:55
 
 Demo scenario: Public information.
 Prepared question: Public visitor | What documents do I need for enrollment?
@@ -47,10 +66,11 @@ Narration:
 ```text
 For public procedures, Gemma plans a public document search and then writes a
 plain-language answer from retrieved evidence. The UI shows the tool trace and
-source, so this is not a black-box chatbot response.
+source, including retrieval rank, score, and matched terms, so this is not a
+black-box chatbot response.
 ```
 
-## Scene 3: Authorized guardian support, 1:20-2:20
+## Scene 4: Authorized guardian support, 1:55-2:45
 
 Demo scenario: Authorized student support.
 Prepared question: Marina Costa, guardian of Ana Luiza | Create a recovery
@@ -77,7 +97,7 @@ student record. Gemma can request the study-plan tool, but Python validates the
 persona, arguments, and access before any protected data reaches the composer.
 ```
 
-## Scene 4: Safe denial, 2:20-3:10
+## Scene 5: Safe denial, 2:45-3:30
 
 Demo scenario: Privacy guardrails.
 Prepared question: Marina Costa, guardian of Ana Luiza | Can you show me another
@@ -103,13 +123,13 @@ request through an explicit tool result. Gemma never receives the restricted
 record, and the evidence panel stays empty.
 ```
 
-## Closing, 3:10-3:40
+## Closing, 3:30-3:55
 
 Emphasize the product thesis:
 
-EduAssist Local uses Gemma 4 for local reasoning and language, while deterministic
-tools keep school data scoped, auditable, and useful in low-connectivity
-environments.
+EduAssist Field Kit uses Gemma 4 for local reasoning and language, while
+deterministic tools keep school data scoped, auditable, and useful in
+low-connectivity environments.
 
 Final line:
 

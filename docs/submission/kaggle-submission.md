@@ -2,13 +2,14 @@
 
 ## Project Title
 
-EduAssist Local: Private, Offline School Assistance with Gemma 4
+EduAssist Field Kit: Private, Offline School Assistance with Gemma 4
 
 ## One-line Summary
 
-EduAssist Local uses Gemma 4 running locally to help families and school staff
-answer school-support questions while deterministic tools enforce student-data
-scope, evidence grounding, and auditable denials.
+EduAssist Field Kit uses Gemma 4 running locally to help families and school
+staff turn school notices, public questions, and scoped student-support requests
+into safe next actions while deterministic tools enforce student-data scope,
+evidence grounding, and auditable denials.
 
 ## Impact Area
 
@@ -28,10 +29,11 @@ child doing, and what should we do next? These questions become harder in
 low-connectivity communities and in privacy-sensitive environments, where sending
 student records to a remote chatbot is often inappropriate.
 
-EduAssist Local is a working proof-of-concept for a local-first school assistant.
-It runs Gemma 4 E4B locally through llama.cpp and exposes a Streamlit interface
-for three common workflows: public school information, authorized guardian or
-teacher support, and safe denial of restricted student data.
+EduAssist Field Kit is a working proof-of-concept for a local-first school
+assistant. It runs Gemma 4 E4B locally through llama.cpp and exposes a Streamlit
+interface for four common workflows: document intake, public school information,
+authorized guardian or teacher support, and safe denial of restricted student
+data.
 
 Gemma 4 is central to the application. It is used first as a tool planner: given
 the user's question, selected persona, authorized synthetic student ids, and
@@ -40,6 +42,14 @@ application then validates the tool name, arguments, and persona scope before
 execution. Gemma is used again as a grounded composer: it receives only validated
 tool results and produces the final answer from evidence. The model never gets
 direct database access.
+
+The app intentionally uses a lightweight custom planner-executor-composer loop
+instead of LangGraph or a specialist supervisor. That keeps the hackathon demo
+local, auditable, and easy to explain: Gemma plans and writes, while Python owns
+tool validation, access policy, and execution. Public retrieval is also local:
+weighted lexical search with bilingual query expansion returns ranked evidence
+plus `score` and `matched_terms`, while protected student data remains a scoped
+deterministic lookup rather than a retriever.
 
 The deterministic tool layer includes public document search, protected
 synthetic student snapshots, study-plan generation, and explicit denial results.
@@ -59,10 +69,10 @@ offloaded 43/43 layers to CUDA, with generation-time GPU utilization observed at
 86-92%.
 
 The main technical challenge was balancing model usefulness with privacy. A plain
-chatbot could easily over-answer or invent access. EduAssist Local instead gives
-Gemma a narrow planning role and keeps authorization in deterministic Python
-code. If a guardian asks for another student's grades, the app returns a denial
-tool result and never exposes that restricted record to the composer.
+chatbot could easily over-answer or invent access. EduAssist Field Kit instead
+gives Gemma a narrow planning role and keeps authorization in deterministic
+Python code. If a guardian asks for another student's grades, the app returns a
+denial tool result and never exposes that restricted record to the composer.
 
 This is not a finished production identity platform. It is a focused hackathon
 prototype showing a deployable pattern: local open-model reasoning plus small,

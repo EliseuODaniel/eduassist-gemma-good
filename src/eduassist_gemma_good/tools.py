@@ -27,11 +27,20 @@ class ToolExecutor:
             return ToolResult(call, "error", {"error": f"Unknown tool: {call.name}"})
         if call.name == "search_public_knowledge":
             query = str(call.arguments.get("query", ""))
-            evidence = self.data_store.search_public(query)
+            documents = self.data_store.search_public_with_metadata(query)
+            evidence = tuple(
+                Evidence(
+                    source_id=str(document["source_id"]),
+                    title=str(document["title"]),
+                    excerpt=str(document["excerpt"]),
+                    access="public",
+                )
+                for document in documents
+            )
             return ToolResult(
                 call,
                 "ok",
-                {"documents": [evidence_item.__dict__ for evidence_item in evidence]},
+                {"documents": list(documents)},
                 evidence,
             )
         if call.name == "get_student_snapshot":

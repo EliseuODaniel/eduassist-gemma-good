@@ -35,6 +35,10 @@ def test_planner_schemas_are_generated_from_registry() -> None:
     assert schema_by_name["search_public_knowledge"]["description"] == (
         TOOL_REGISTRY["search_public_knowledge"].description
     )
+    public_document_schema = TOOL_REGISTRY["search_public_knowledge"].output_schema["properties"][
+        "documents"
+    ]["items"]
+    assert {"rank", "score", "matched_terms"} <= set(public_document_schema["required"])
 
 
 def test_planned_notice_tools_are_registered_but_not_planner_enabled() -> None:
