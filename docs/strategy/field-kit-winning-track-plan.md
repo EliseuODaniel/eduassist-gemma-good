@@ -1,6 +1,6 @@
 # EduAssist Field Kit Winning Track Plan
 
-Status: Phase 3 typed tool registry implemented, Phase 4 ready.
+Status: Phase 5 repository-side submission polish in progress.
 
 Branch: `codex/field-kit-winning-track`.
 
@@ -342,20 +342,24 @@ Goal: make the branch submission-ready.
 
 Implementation status: in progress. The architecture/retrieval decision is now
 documented, and public retrieval has been upgraded with local weighted lexical
-ranking plus bilingual query expansion.
+ranking plus bilingual query expansion. Versioned evidence, architecture media,
+and storyboard assets have been added; the remaining major item is recording the
+external demo video.
 
 Tasks:
 
-- Finalize README for Field Kit.
-- Add screenshots/GIF or updated SVG media.
-- Update Kaggle writeup with metrics.
-- Record 3-4 minute video.
+- Finalize README for Field Kit. Done.
+- Add screenshots/GIF or updated SVG media. Done with SVG cover,
+  architecture, and storyboard assets.
+- Update Kaggle writeup with metrics. Done.
+- Record 3-4 minute video. Pending outside repository.
 - Optional: publish fallback demo if low-friction.
 
 Exit criteria:
 
-- Public repo tells the story without private context.
-- Video shows end-to-end value in one coherent user journey.
+- Public repo tells the story without private context. Done.
+- Video shows end-to-end value in one coherent user journey. Ready to record
+  from the storyboard; final video still pending.
 
 ## Recommendation
 

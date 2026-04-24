@@ -21,6 +21,19 @@ def test_sample_notice_produces_family_action_output() -> None:
     assert "Recovery Exam and Family Support Notice" in output.message
 
 
+def test_enrollment_notice_keeps_deadlines_and_documents_separate() -> None:
+    sample = DATA_DIR / "notices" / "enrollment-support-notice.md"
+
+    text = extract_notice_text(sample.name, sample.read_bytes())
+    facts = extract_notice_facts(text, sample.name)
+
+    assert facts.deadlines == ("The deadline to submit enrollment documents is February 2, 2026.",)
+    assert "Birth certificate or student ID." in facts.required_documents
+    assert "The deadline to submit enrollment documents is February 2, 2026." not in (
+        facts.required_documents
+    )
+
+
 def test_sample_notice_paths_only_returns_supported_files() -> None:
     paths = sample_notice_paths(DATA_DIR)
 

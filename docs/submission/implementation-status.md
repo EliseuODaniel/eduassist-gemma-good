@@ -18,6 +18,9 @@ demo video and paste the final links into Kaggle.
 - Expanded offline evaluation with 181/181 passing locally, including 54/54
   restricted-data denials and zero denial leak failures.
 - Representative Gemma subset support through repeated `--case-id` arguments.
+- Versioned sample output evidence for document intake, public guidance,
+  protected recovery planning, and privacy denial.
+- Architecture and storyboard SVG assets for the Kaggle media gallery.
 - Draft technical writeup, demo script, evaluation plan, and repository scope.
 - Kaggle submission package with title, summary, writeup, public links, and
   final checklist.
@@ -25,7 +28,7 @@ demo video and paste the final links into Kaggle.
 
 ## Remaining
 
-- Record and edit the 3-4 minute demo video.
+- Record and edit the 3-4 minute demo video using the updated storyboard.
 - Decide whether to publish a live lightweight fallback demo in addition to the
   local Gemma instructions.
 - Paste the final video and optional live demo links into Kaggle.

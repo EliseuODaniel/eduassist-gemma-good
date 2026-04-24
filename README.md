@@ -149,6 +149,10 @@ Current local validation:
   implementation status.
 - `docs/strategy/orchestration-and-retrieval.md` - architecture decision for the
   custom orchestration loop and local retrieval path.
+- `docs/submission/evidence/sample-outputs.md` - concrete sample outputs for
+  the demo story.
+- `docs/submission/media-gallery.md` - versioned SVG assets and video order for
+  the Kaggle media gallery.
 - `docs/submission/kaggle-submission.md` - title, summary, writeup, links, and
   final checklist for the Kaggle form.
 

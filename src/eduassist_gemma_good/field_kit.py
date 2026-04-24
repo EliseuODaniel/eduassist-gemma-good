@@ -39,7 +39,7 @@ FIELD_KIT_WORKFLOWS = {
         user="School field worker",
         question_group_key="public_information",
         action_label="Notice checklist",
-        demo_goal="Prepare the document workflow that Phase 2 will connect to PDF/image intake.",
+        demo_goal="Turn local notice files into dates, required documents, and next actions.",
     ),
 }
 

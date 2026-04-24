@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">EduAssist Field Kit architecture</title>
+  <desc id="desc">Local Gemma planner and composer with deterministic policy tools, local retrieval, document intake, and action outputs.</desc>
+  <rect width="1280" height="720" fill="#f8fafc"/>
+  <text x="80" y="82" font-family="Inter, Arial, sans-serif" font-size="44" font-weight="700" fill="#0f172a">EduAssist Field Kit Architecture</text>
+  <text x="80" y="122" font-family="Inter, Arial, sans-serif" font-size="20" fill="#475569">Local Gemma reasoning, deterministic access policy, and auditable school-support tools</text>
+
+  <rect x="70" y="178" width="184" height="104" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="100" y="220" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#0f172a">Field worker</text>
+  <text x="100" y="252" font-family="Inter, Arial, sans-serif" font-size="17" fill="#475569">family, teacher, office</text>
+
+  <rect x="310" y="160" width="210" height="140" rx="8" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+  <text x="344" y="206" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" fill="#1e3a8a">Streamlit UI</text>
+  <text x="344" y="238" font-family="Inter, Arial, sans-serif" font-size="17" fill="#1e40af">workflow selector</text>
+  <text x="344" y="266" font-family="Inter, Arial, sans-serif" font-size="17" fill="#1e40af">scenario cards</text>
+
+  <rect x="590" y="148" width="240" height="164" rx="8" fill="#ecfeff" stroke="#67e8f9" stroke-width="2"/>
+  <text x="628" y="196" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" fill="#155e75">Gemma 4 local</text>
+  <text x="628" y="228" font-family="Inter, Arial, sans-serif" font-size="17" fill="#155e75">planner JSON</text>
+  <text x="628" y="256" font-family="Inter, Arial, sans-serif" font-size="17" fill="#155e75">grounded composer</text>
+  <text x="628" y="284" font-family="Inter, Arial, sans-serif" font-size="17" fill="#155e75">GPU via llama.cpp</text>
+
+  <rect x="900" y="150" width="284" height="160" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="2"/>
+  <text x="932" y="198" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" fill="#166534">Policy executor</text>
+  <text x="932" y="230" font-family="Inter, Arial, sans-serif" font-size="17" fill="#166534">typed tool registry</text>
+  <text x="932" y="258" font-family="Inter, Arial, sans-serif" font-size="17" fill="#166534">persona scope checks</text>
+  <text x="932" y="286" font-family="Inter, Arial, sans-serif" font-size="17" fill="#166534">safe denials</text>
+
+  <path d="M254 230 H302" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+  <path d="M292 218 L306 230 L292 242" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M520 230 H582" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+  <path d="M572 218 L586 230 L572 242" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M830 230 H892" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+  <path d="M882 218 L896 230 L882 242" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <rect x="100" y="408" width="246" height="128" rx="8" fill="#ffffff" stroke="#bae6fd" stroke-width="2"/>
+  <text x="128" y="452" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#075985">Document intake</text>
+  <text x="128" y="484" font-family="Inter, Arial, sans-serif" font-size="17" fill="#0369a1">PDF/TXT/MD local text</text>
+  <text x="128" y="512" font-family="Inter, Arial, sans-serif" font-size="17" fill="#0369a1">dates, docs, contacts</text>
+
+  <rect x="392" y="408" width="246" height="128" rx="8" fill="#ffffff" stroke="#bae6fd" stroke-width="2"/>
+  <text x="420" y="452" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#075985">Public retrieval</text>
+  <text x="420" y="484" font-family="Inter, Arial, sans-serif" font-size="17" fill="#0369a1">weighted lexical score</text>
+  <text x="420" y="512" font-family="Inter, Arial, sans-serif" font-size="17" fill="#0369a1">rank, score, terms</text>
+
+  <rect x="684" y="408" width="246" height="128" rx="8" fill="#ffffff" stroke="#bbf7d0" stroke-width="2"/>
+  <text x="712" y="452" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#166534">Protected data</text>
+  <text x="712" y="484" font-family="Inter, Arial, sans-serif" font-size="17" fill="#166534">synthetic snapshots</text>
+  <text x="712" y="512" font-family="Inter, Arial, sans-serif" font-size="17" fill="#166534">scoped by persona</text>
+
+  <rect x="976" y="408" width="204" height="128" rx="8" fill="#ffffff" stroke="#fed7aa" stroke-width="2"/>
+  <text x="1004" y="452" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#9a3412">Action output</text>
+  <text x="1004" y="484" font-family="Inter, Arial, sans-serif" font-size="17" fill="#c2410c">checklist</text>
+  <text x="1004" y="512" font-family="Inter, Arial, sans-serif" font-size="17" fill="#c2410c">message draft</text>
+
+  <path d="M1042 310 V396" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+  <path d="M1030 386 L1042 400 L1054 386" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M710 312 V374 H515 V400" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+  <path d="M503 388 L515 402 L527 388" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M900 230 C830 330 790 360 807 398" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+  <path d="M792 389 L808 402 L814 382" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <rect x="80" y="608" width="1120" height="58" rx="8" fill="#0f172a"/>
+  <text x="112" y="644" font-family="Inter, Arial, sans-serif" font-size="22" fill="#ffffff">No model-to-database access | No real student data | 181/181 offline eval | 54/54 restricted denials</text>
+</svg>

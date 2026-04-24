@@ -80,6 +80,10 @@ support, privacy denials, document intake, Portuguese prompts, and malicious
 notice text. A representative Gemma-enabled subset passed 3/3 across public
 information, authorized support, and privacy guardrail cases.
 
+Concrete outputs for the video flow are versioned in
+`docs/submission/evidence/sample-outputs.md`, and the architecture/storyboard
+media assets are listed in `docs/submission/media-gallery.md`.
+
 ## Safety and privacy
 
 - The demo contains synthetic data only.

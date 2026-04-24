@@ -20,6 +20,8 @@ Future of Education and Digital Equity.
 - Code repository: https://github.com/EliseuODaniel/eduassist-gemma-good
 - Demo video: to be added after recording
 - Live demo: optional; local Gemma demo instructions are in the README
+- Evidence pack: `docs/submission/evidence/sample-outputs.md`
+- Media gallery guide: `docs/submission/media-gallery.md`
 
 ## Writeup
 
@@ -85,10 +87,11 @@ cloud dependency.
 - Start the local model with `make llm-up`.
 - Start the app with `make app`.
 - Show the sidebar: Gemma endpoint online, model id, prepared-case coverage.
+- Show the document intake workflow with `enrollment-support-notice.md`.
 - Run the public enrollment question.
 - Run the authorized recovery-plan question.
 - Run the privacy denial question.
-- Show `make eval` or the generated evaluation artifacts.
+- Show `make eval`, the generated evaluation artifacts, or the evidence pack.
 
 ## Final Pre-submission Checklist
 
@@ -98,5 +101,8 @@ cloud dependency.
 - Technical writeup is present in `docs/submission/technical-writeup.md`.
 - Evaluation plan is present in `docs/submission/evaluation-plan.md`.
 - Implementation status is present in `docs/submission/implementation-status.md`.
+- Evidence pack is present in `docs/submission/evidence/sample-outputs.md`.
+- Media guide and SVG assets are present in `docs/submission/media-gallery.md`
+  and `docs/submission/assets/`.
 - Demo video URL is added after recording.
 - Kaggle submission form is filled with this package.

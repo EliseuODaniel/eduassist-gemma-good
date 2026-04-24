@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">EduAssist Field Kit demo storyboard</title>
+  <desc id="desc">Five-scene storyboard for the Kaggle demo video.</desc>
+  <rect width="1280" height="720" fill="#f8fafc"/>
+  <text x="80" y="84" font-family="Inter, Arial, sans-serif" font-size="44" font-weight="700" fill="#0f172a">Demo Storyboard</text>
+  <text x="80" y="122" font-family="Inter, Arial, sans-serif" font-size="20" fill="#475569">A coherent 3-4 minute Field Kit story for Kaggle judges</text>
+
+  <rect x="80" y="176" width="208" height="300" rx="8" fill="#ffffff" stroke="#93c5fd" stroke-width="2"/>
+  <text x="108" y="222" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="700" fill="#1e3a8a">1. Notice</text>
+  <text x="108" y="260" font-family="Inter, Arial, sans-serif" font-size="17" fill="#334155">Upload or select</text>
+  <text x="108" y="286" font-family="Inter, Arial, sans-serif" font-size="17" fill="#334155">school notice</text>
+  <text x="108" y="336" font-family="Inter, Arial, sans-serif" font-size="16" fill="#0369a1">Extract dates, docs,</text>
+  <text x="108" y="360" font-family="Inter, Arial, sans-serif" font-size="16" fill="#0369a1">contacts, checklist</text>
+
+  <rect x="318" y="176" width="208" height="300" rx="8" fill="#ffffff" stroke="#93c5fd" stroke-width="2"/>
+  <text x="346" y="222" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="700" fill="#1e3a8a">2. Public</text>
+  <text x="346" y="260" font-family="Inter, Arial, sans-serif" font-size="17" fill="#334155">Ask enrollment</text>
+  <text x="346" y="286" font-family="Inter, Arial, sans-serif" font-size="17" fill="#334155">question</text>
+  <text x="346" y="336" font-family="Inter, Arial, sans-serif" font-size="16" fill="#0369a1">Show retrieval rank,</text>
+  <text x="346" y="360" font-family="Inter, Arial, sans-serif" font-size="16" fill="#0369a1">score, matched terms</text>
+
+  <rect x="556" y="176" width="208" height="300" rx="8" fill="#ffffff" stroke="#86efac" stroke-width="2"/>
+  <text x="584" y="222" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="700" fill="#166534">3. Support</text>
+  <text x="584" y="260" font-family="Inter, Arial, sans-serif" font-size="17" fill="#334155">Guardian asks for</text>
+  <text x="584" y="286" font-family="Inter, Arial, sans-serif" font-size="17" fill="#334155">recovery plan</text>
+  <text x="584" y="336" font-family="Inter, Arial, sans-serif" font-size="16" fill="#166534">Policy allows only</text>
+  <text x="584" y="360" font-family="Inter, Arial, sans-serif" font-size="16" fill="#166534">scoped student</text>
+
+  <rect x="794" y="176" width="208" height="300" rx="8" fill="#ffffff" stroke="#fecaca" stroke-width="2"/>
+  <text x="822" y="222" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="700" fill="#991b1b">4. Deny</text>
+  <text x="822" y="260" font-family="Inter, Arial, sans-serif" font-size="17" fill="#334155">Ask for another</text>
+  <text x="822" y="286" font-family="Inter, Arial, sans-serif" font-size="17" fill="#334155">student grades</text>
+  <text x="822" y="336" font-family="Inter, Arial, sans-serif" font-size="16" fill="#991b1b">No protected</text>
+  <text x="822" y="360" font-family="Inter, Arial, sans-serif" font-size="16" fill="#991b1b">evidence exposed</text>
+
+  <rect x="1032" y="176" width="168" height="300" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="1060" y="222" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="700" fill="#0f172a">5. Proof</text>
+  <text x="1060" y="260" font-family="Inter, Arial, sans-serif" font-size="17" fill="#334155">Show eval</text>
+  <text x="1060" y="286" font-family="Inter, Arial, sans-serif" font-size="17" fill="#334155">metrics</text>
+  <text x="1060" y="336" font-family="Inter, Arial, sans-serif" font-size="16" fill="#475569">181/181</text>
+  <text x="1060" y="360" font-family="Inter, Arial, sans-serif" font-size="16" fill="#475569">54/54 denials</text>
+
+  <path d="M288 326 H310" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+  <path d="M526 326 H548" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+  <path d="M764 326 H786" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+  <path d="M1002 326 H1024" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+
+  <rect x="80" y="560" width="1120" height="70" rx="8" fill="#0f172a"/>
+  <text x="112" y="604" font-family="Inter, Arial, sans-serif" font-size="23" fill="#ffffff">Narrative: confusing paperwork -> safe actions -> protected recovery plan -> visible privacy guardrail -> measured reliability</text>
+</svg>

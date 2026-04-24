@@ -101,7 +101,7 @@ def extract_notice_facts(text: str, source_name: str = "notice") -> NoticeFacts:
     title = _notice_title(lines, source_name)
     dates = _unique(DATE_RE.findall(cleaned))
     deadlines = _matching_lines(lines, DEADLINE_TERMS)
-    required_documents = _matching_lines(lines, DOCUMENT_TERMS, skip_headings=True)
+    required_documents = _required_document_lines(lines)
     contacts = _matching_lines(lines, CONTACT_TERMS, skip_headings=True)
     actions = _build_actions(dates, deadlines, required_documents, contacts)
     return NoticeFacts(
@@ -181,11 +181,34 @@ def _matching_lines(
     return _unique(matches)
 
 
+def _required_document_lines(lines: tuple[str, ...]) -> tuple[str, ...]:
+    matches: list[str] = []
+    in_document_section = False
+    for line in lines:
+        normalized = line.lower()
+        if _looks_like_heading(normalized):
+            in_document_section = True
+            continue
+        if in_document_section:
+            if any(_has_term(normalized, term) for term in CONTACT_TERMS):
+                in_document_section = False
+                continue
+            if any(_has_term(normalized, term) for term in DEADLINE_TERMS):
+                continue
+            matches.append(line)
+            continue
+        if any(_has_term(normalized, term) for term in DOCUMENT_TERMS) and not any(
+            _has_term(normalized, term) for term in (*DEADLINE_TERMS, *CONTACT_TERMS)
+        ):
+            matches.append(line)
+    return _unique(matches)
+
+
 def _has_term(normalized_line: str, term: str) -> bool:
     normalized_term = term.strip().lower()
-    if len(normalized_term) <= 2:
-        return re.search(rf"\b{re.escape(normalized_term)}\b", normalized_line) is not None
-    return normalized_term in normalized_line
+    if " " in normalized_term:
+        return normalized_term in normalized_line
+    return re.search(rf"\b{re.escape(normalized_term)}\b", normalized_line) is not None
 
 
 def _looks_like_heading(normalized_line: str) -> bool:
