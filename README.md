@@ -81,10 +81,13 @@ make app
 
 Open http://localhost:8501.
 
-The app includes `Demo scenario` and `Prepared question` selectors populated
-from the same 24-question regression set used by `make eval`. Choosing a
-prepared question loads the matching persona and expected tool/access outcome,
-while still leaving the question text editable for live exploration.
+On the `codex/field-kit-winning-track` branch, the app is reframed as
+EduAssist Field Kit. It includes `Field kit workflow` and `Scenario card`
+selectors populated from the same 24-question regression set used by
+`make eval`. The `Document intake` workflow can read local TXT, Markdown, or PDF
+school notices, extract dates/documents/support channels, and produce a family
+checklist plus school message draft without a cloud dependency. Image OCR is
+wired as an optional local path when OCR tooling is installed.
 
 ## Evaluation
 
@@ -119,6 +122,7 @@ Current local validation:
 - `data/demo/public/` - synthetic public school documents.
 - `data/demo/protected/` - synthetic protected student snapshots.
 - `data/demo/evals/` - small evaluation set for demo regression checks.
+- `data/demo/notices/` - sample school notices for the Field Kit document intake.
 - `infra/compose/` - local Gemma 4 E4B service and optional demo-web service.
 - `docs/submission/` - hackathon writeup, demo script, evaluation plan, and
   implementation status.

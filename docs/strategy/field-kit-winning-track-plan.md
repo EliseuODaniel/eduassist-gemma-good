@@ -1,6 +1,6 @@
 # EduAssist Field Kit Winning Track Plan
 
-Status: Phase 1 implemented, Phase 2 ready.
+Status: Phase 2 minimum viable document intake implemented, Phase 3 ready.
 
 Branch: `codex/field-kit-winning-track`.
 
@@ -273,18 +273,22 @@ Exit criteria:
 
 Goal: support uploaded notices/forms as first-class inputs.
 
+Implementation status: minimum viable local intake complete.
+
 Tasks:
 
-- Add sample school notice files.
-- Implement local PDF text extraction.
-- Implement image OCR fallback if available locally.
-- Add `extract_notice_facts` and `generate_family_checklist`.
+- Add sample school notice files. Done.
+- Implement local PDF text extraction. Done.
+- Implement image OCR fallback if available locally. Done as an optional local
+  path; PDF/TXT/MD remain the guaranteed demo path.
+- Add `extract_notice_facts` and `generate_family_checklist`. Done as local
+  notice fact extraction plus `Notice checklist output`.
 - Add eval cases for notice extraction.
 
 Exit criteria:
 
-- A sample notice produces a structured checklist.
-- No cloud dependency is required for the demo path.
+- A sample notice produces a structured checklist. Done.
+- No cloud dependency is required for the demo path. Done.
 
 ### Phase 3: Tool Registry and Policy Refactor
 

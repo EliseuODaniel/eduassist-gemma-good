@@ -16,6 +16,13 @@ from eduassist_gemma_good.field_kit import (
     FieldKitWorkflow,
     workflow_option_label,
 )
+from eduassist_gemma_good.notice_intake import (
+    NoticeFacts,
+    action_output_from_notice,
+    extract_notice_facts,
+    extract_notice_text,
+    sample_notice_paths,
+)
 from eduassist_gemma_good.question_bank import (
     QUESTION_GROUPS,
     PreparedQuestion,
@@ -240,6 +247,83 @@ def render_action_output(output: ActionOutput) -> None:
         st.caption(output.safety_note)
 
 
+def render_notice_facts(facts: NoticeFacts) -> None:
+    st.subheader("Notice Facts")
+    st.markdown(
+        f"""
+        <div class="ea-band">
+            <strong>{escape_html(facts.title)}</strong><br />
+            <span class="ea-pill">source: {escape_html(facts.source_name)}</span>
+            <span class="ea-pill">dates: {len(facts.dates)}</span>
+            <span class="ea-pill">documents: {len(facts.required_documents)}</span>
+            <span class="ea-pill">contacts: {len(facts.contacts)}</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    if facts.dates:
+        st.markdown("**Dates**")
+        for item in facts.dates:
+            st.write(f"- {item}")
+    if facts.deadlines:
+        st.markdown("**Deadlines**")
+        for item in facts.deadlines:
+            st.write(f"- {item}")
+    if facts.required_documents:
+        st.markdown("**Required documents**")
+        for item in facts.required_documents:
+            st.write(f"- {item}")
+    if facts.contacts:
+        st.markdown("**Contacts and support channels**")
+        for item in facts.contacts:
+            st.write(f"- {item}")
+
+
+def render_document_intake(data_dir: Path) -> None:
+    samples = sample_notice_paths(data_dir)
+    uploaded = st.file_uploader(
+        "Upload school notice",
+        type=["md", "txt", "pdf", "png", "jpg", "jpeg"],
+    )
+
+    source_name = ""
+    source_text = ""
+    if uploaded is not None:
+        source_name = uploaded.name
+        try:
+            source_text = extract_notice_text(uploaded.name, uploaded.getvalue())
+        except ValueError as exc:
+            st.error(str(exc))
+            return
+    elif samples:
+        selected_sample = st.selectbox(
+            "Sample notice",
+            options=list(samples),
+            format_func=lambda path: path.name,
+        )
+        source_name = selected_sample.name
+        source_text = extract_notice_text(selected_sample.name, selected_sample.read_bytes())
+    else:
+        st.warning("No sample notices are available.")
+        return
+
+    left, right = st.columns([1.05, 0.95], gap="large")
+    with left:
+        st.subheader("Notice Text")
+        notice_text = st.text_area(
+            "Extracted local text",
+            value=source_text,
+            height=285,
+        )
+    with right:
+        if not notice_text.strip():
+            st.info("Add notice text to generate a local checklist.")
+            return
+        facts = extract_notice_facts(notice_text, source_name)
+        render_notice_facts(facts)
+        render_action_output(action_output_from_notice(facts))
+
+
 def main() -> None:
     st.set_page_config(page_title="EduAssist Field Kit", page_icon="EA", layout="wide")
     install_theme()
@@ -276,6 +360,10 @@ def main() -> None:
     group_questions = filter_questions(prepared_questions, group_key)
     group_question_ids = [question.id for question in group_questions]
     render_workflow_card(workflow, len(group_questions))
+
+    if workflow_key == "document_intake":
+        render_document_intake(settings.data_dir)
+        return
 
     current_question_id = st.session_state.get("selected_question_id")
     if current_question_id not in group_question_ids:
