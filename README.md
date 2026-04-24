@@ -143,6 +143,18 @@ uv run python -m eduassist_gemma_good.eval_runner --use-llm \
   --representative-gemma-suite
 ```
 
+Run the broad stress battery:
+
+```bash
+uv run python -m eduassist_gemma_good.stress_eval
+```
+
+Run a stratified stress sample with local Gemma:
+
+```bash
+uv run python -m eduassist_gemma_good.stress_eval --use-llm --limit 45
+```
+
 Current local validation:
 
 - Gemma runtime: `ggml-org/gemma-4-E4B-it-GGUF`, file
@@ -156,6 +168,8 @@ Current local validation:
 - curated Gemma representative suite: 12/12 passed with local Gemma across
   public information, authorized support, privacy guardrails, and Portuguese
   cases; denial safety remained 3/3 with zero protected-evidence leaks.
+- stress battery: 856/856 passed in deterministic mode after privacy preflight
+  hardening; stratified local Gemma stress passed 45/45.
 
 ## Repository map
 
@@ -174,6 +188,8 @@ Current local validation:
   tool-call, structured-output, and vision optimization notes.
 - `docs/submission/evidence/sample-outputs.md` - concrete sample outputs for
   the demo story.
+- `docs/submission/stress-test-diagnosis.md` - broad adversarial question
+  battery, initial failures found, fixes applied, and remaining risks.
 - `docs/submission/media-gallery.md` - versioned SVG assets and video order for
   the Kaggle media gallery.
 - `docs/submission/kaggle-submission.md` - title, summary, writeup, links, and

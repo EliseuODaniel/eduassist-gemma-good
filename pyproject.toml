@@ -13,6 +13,7 @@ dependencies = [
 
 [project.scripts]
 eduassist-gemma-good-eval = "eduassist_gemma_good.eval_runner:main"
+eduassist-gemma-good-stress = "eduassist_gemma_good.stress_eval:main"
 
 [dependency-groups]
 dev = [

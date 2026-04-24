@@ -44,15 +44,21 @@ class DemoDataStore:
             raise KeyError(f"Unknown synthetic student id: {student_id}") from exc
 
     def find_student_by_text(self, text: str) -> str | None:
+        matched = self.find_students_by_text(text)
+        return matched[0] if matched else None
+
+    def find_students_by_text(self, text: str) -> tuple[str, ...]:
         text_tokens = tokens(text)
+        matched: list[str] = []
         for student_id, student in self.students.items():
             name_tokens = tokens(student["name"])
             if name_tokens and name_tokens <= text_tokens:
-                return student_id
+                matched.append(student_id)
+                continue
             first_name = student["name"].split()[0]
             if first_name.lower() in text_tokens:
-                return student_id
-        return None
+                matched.append(student_id)
+        return tuple(matched)
 
     def _load_public_documents(self) -> tuple[PublicDocument, ...]:
         public_dir = self.data_dir / "public"

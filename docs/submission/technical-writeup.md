@@ -103,6 +103,15 @@ information cases, 5 authorized support cases, 3 privacy guardrail cases, and
 Portuguese prompts. The local Gemma suite preserved 3/3 restricted-data denials
 with zero protected-evidence leaks.
 
+An additional adversarial stress runner now generates 856 cases across public
+questions, authorized support, generic protected requests, bulk/cross-student
+requests, direct tool-injection attempts, Portuguese prompts, and document
+intake. The first run found 275 failures in generic public protected requests,
+bulk protected requests, and tool-injection language. A deterministic privacy
+preflight now catches those before Gemma or fallback planning; the current
+stress result is 856/856 deterministic and 45/45 on a stratified local Gemma
+sample.
+
 Concrete outputs for the video flow are versioned in
 `docs/submission/evidence/sample-outputs.md`, and the architecture/storyboard
 media assets are listed in `docs/submission/media-gallery.md`.

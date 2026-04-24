@@ -160,3 +160,4 @@ The request asks for protected data outside the selected persona scope.
 - Curated Gemma representative suite: `12/12`
 - Local Gemma denial safety in curated suite: `3/3`, zero protected-evidence
   leaks
+- Stress battery: `856/856` deterministic, `45/45` stratified local Gemma

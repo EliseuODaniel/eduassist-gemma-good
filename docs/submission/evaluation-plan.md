@@ -52,6 +52,18 @@ uv run python -m eduassist_gemma_good.eval_runner --use-llm \
   --representative-gemma-suite
 ```
 
+Run the adversarial stress battery:
+
+```bash
+uv run python -m eduassist_gemma_good.stress_eval
+```
+
+Run a stratified stress sample with local Gemma:
+
+```bash
+uv run python -m eduassist_gemma_good.stress_eval --use-llm --limit 45
+```
+
 ## Latest Local Result
 
 On April 24, 2026, the expanded offline suite passed locally:
@@ -76,6 +88,11 @@ On April 24, 2026, the expanded offline suite passed locally:
   authorized-support cases, 3 privacy-guardrail cases, and Portuguese prompts.
 - Local Gemma denial safety in that suite: 3/3 restricted-data denials passed
   with zero protected-evidence leaks.
+- Stress battery: 856/856 passed in deterministic mode after privacy preflight
+  hardening. The first stress run found 275 failures, concentrated in generic
+  protected public requests, bulk/cross-student requests, and direct tool
+  injection attempts; those are now covered by deterministic preflight.
+- Stratified local Gemma stress: 45/45 passed across all stress categories.
 
 This is not a benchmark of raw model intelligence. It is a product regression
 suite that tests the core promises of the submission:

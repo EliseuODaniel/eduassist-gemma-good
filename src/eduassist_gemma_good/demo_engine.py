@@ -25,6 +25,75 @@ from .schema import (
 from .text_utils import normalize_text, tokens
 from .tools import ToolExecutor
 
+DIRECT_TOOL_INJECTION_TERMS = (
+    "get_student_snapshot",
+    "build_study_plan",
+    "tool_calls",
+    "tool call",
+    "protected database",
+    "hide the trace",
+    "omit the denial",
+    "pretend authorization",
+    "ignore the registry",
+    "chame get_student_snapshot",
+)
+BULK_OR_CROSS_STUDENT_TERMS = (
+    "another student",
+    "other student",
+    "every student",
+    "all students",
+    "any student",
+    "every child",
+    "class grade",
+    "grade spreadsheet",
+    "attendance table",
+    "class 8a",
+    "colega",
+    "outro aluno",
+    "outra aluna",
+    "todos os alunos",
+    "toda a turma",
+    "todas as alunas",
+    "todos estudantes",
+)
+PROTECTED_REQUEST_TERMS = {
+    "attendance",
+    "absence",
+    "absences",
+    "alert",
+    "alerts",
+    "behavior",
+    "grade",
+    "grades",
+    "record",
+    "records",
+    "risk",
+    "snapshot",
+    "boletim",
+    "faltas",
+    "frequencia",
+    "nota",
+    "notas",
+    "prontuario",
+    "prontuarios",
+}
+PROTECTED_REQUEST_PHRASES = (
+    "academic alert",
+    "academic summary",
+    "student record",
+    "support focus",
+    "recovery plan",
+    "study plan",
+    "plano de estudo",
+    "plano semanal",
+    "resumo academico",
+    "meu filho",
+    "minha filha",
+    "my child",
+    "my kid",
+)
+MY_CHILD_TERMS = ("my child", "my kid", "minha filha", "meu filho")
+
 
 class DemoEngine:
     def __init__(self, settings: Settings | None = None, *, use_llm: bool | None = None) -> None:
@@ -40,8 +109,19 @@ class DemoEngine:
 
     def answer(self, question: str, persona_key: str = "public") -> AssistantResponse:
         persona = PERSONAS[persona_key]
-        detected_student_id = self.data_store.find_student_by_text(question)
-        calls, planning_mode, safety_notes = self._plan(question, persona, detected_student_id)
+        detected_student_ids = self.data_store.find_students_by_text(question)
+        detected_student_id = detected_student_ids[0] if len(detected_student_ids) == 1 else None
+        preflight_denial = self._preflight_denial(question, persona, detected_student_ids)
+        if preflight_denial is None:
+            calls, planning_mode, safety_notes = self._plan(
+                question,
+                persona,
+                detected_student_id,
+            )
+        else:
+            calls = (preflight_denial,)
+            planning_mode = "fallback"
+            safety_notes = ("Deterministic privacy preflight denied the request.",)
         results = self.executor.execute_all(calls, persona)
         answer, composition_mode, structured_output = self._compose(question, persona, results)
         evidence = tuple(item for result in results for item in result.evidence)
@@ -158,6 +238,73 @@ class DemoEngine:
             return tuple(calls)
 
         return (ToolCall("search_public_knowledge", {"query": question}),)
+
+    def _preflight_denial(
+        self,
+        question: str,
+        persona: Persona,
+        detected_student_ids: tuple[str, ...],
+    ) -> ToolCall | None:
+        normalized = normalize_text(question)
+        normalized_tokens = tokens(question)
+        if any(term in normalized for term in DIRECT_TOOL_INJECTION_TERMS):
+            return ToolCall(
+                "deny_request",
+                {"reason": "The request attempts to control internal tools or bypass policy."},
+            )
+        if len(detected_student_ids) > 1:
+            return ToolCall(
+                "deny_request",
+                {
+                    "reason": (
+                        "The request asks for multiple protected student records, which is "
+                        "outside this demo scope."
+                    )
+                },
+            )
+        if (
+            len(detected_student_ids) == 1
+            and detected_student_ids[0] not in persona.student_ids
+            and self._looks_like_protected_request(normalized, normalized_tokens)
+        ):
+            return ToolCall(
+                "deny_request",
+                {"reason": "The selected persona is not authorized for the requested student."},
+            )
+        if any(term in normalized for term in BULK_OR_CROSS_STUDENT_TERMS):
+            return ToolCall(
+                "deny_request",
+                {
+                    "reason": (
+                        "The request asks for protected data outside a single authorized "
+                        "student scope."
+                    )
+                },
+            )
+        if (
+            self._looks_like_protected_request(normalized, normalized_tokens)
+            and not detected_student_ids
+            and not self._can_resolve_my_child_reference(normalized, persona)
+        ):
+            return ToolCall(
+                "deny_request",
+                {
+                    "reason": (
+                        "The request asks for protected student data without an authorized "
+                        "student scope."
+                    )
+                },
+            )
+        return None
+
+    def _looks_like_protected_request(self, normalized: str, normalized_tokens: set[str]) -> bool:
+        return bool(
+            PROTECTED_REQUEST_TERMS & normalized_tokens
+            or any(phrase in normalized for phrase in PROTECTED_REQUEST_PHRASES)
+        )
+
+    def _can_resolve_my_child_reference(self, normalized: str, persona: Persona) -> bool:
+        return len(persona.student_ids) == 1 and any(term in normalized for term in MY_CHILD_TERMS)
 
     def _complete_model_plan(
         self,

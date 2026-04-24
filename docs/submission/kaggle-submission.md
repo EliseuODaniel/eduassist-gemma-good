@@ -84,6 +84,12 @@ offloaded 43/43 layers to CUDA, with generation-time GPU utilization observed at
 with local Gemma, including 3/3 restricted-data denials and zero protected
 evidence leaks.
 
+After an adversarial 856-case stress battery exposed weaknesses in generic
+protected requests, class-wide private exports, and direct tool-injection
+phrasing, the app added a deterministic privacy preflight before Gemma planning.
+The current stress result is 856/856 in deterministic mode and 45/45 in a
+stratified local Gemma sample.
+
 The main technical challenge was balancing model usefulness with privacy. A plain
 chatbot could easily over-answer or invent access. EduAssist Field Kit instead
 gives Gemma a narrow planning role and keeps authorization in deterministic

@@ -24,6 +24,13 @@ demo video and paste the final links into Kaggle.
 - Tool trace, evidence panel, runtime mode, and access decision in the UI.
 - Expanded offline evaluation with 181/181 passing locally, including 54/54
   restricted-data denials and zero denial leak failures.
+- Adversarial stress runner with 856 generated cases across public, protected,
+  denial, tool-injection, bulk/cross-student, Portuguese, and document-intake
+  flows.
+- Deterministic privacy preflight for generic protected requests, multiple
+  student records, bulk/class-wide protected data, and direct tool manipulation.
+- Stress validation: 856/856 deterministic and 45/45 stratified local Gemma
+  sample.
 - Representative Gemma subset support through repeated `--case-id` arguments and
   a curated 12-case `--representative-gemma-suite`, now validated at 12/12 with
   local Gemma.
