@@ -1,0 +1,111 @@
+# EduAssist Local for Gemma 4 Good
+
+EduAssist Local is a Gemma 4 Good hackathon fork of the EduAssist school service
+platform. It demonstrates a local-first assistant for schools and families in
+low-connectivity contexts, using Gemma 4 as the central reasoning and response
+engine while deterministic tools enforce access control and evidence grounding.
+
+This repository is intentionally smaller than the source EduAssist platform. It
+contains only synthetic data, a demo app, a local Gemma 4 runtime recipe, and the
+submission writeup assets needed for a public hackathon repo.
+
+## Why this project
+
+Schools often need to answer operational and student-support questions without
+depending on a cloud LLM for every private interaction. EduAssist Local shows a
+privacy-preserving flow:
+
+1. A family member or school staff user asks a question.
+2. Gemma 4 proposes a narrow tool plan.
+3. The application validates the requested tool call and access scope.
+4. Deterministic tools retrieve public policy documents or synthetic protected
+   student snapshots.
+5. Gemma 4 writes the final answer using only validated evidence.
+6. The UI exposes the tool trace, evidence, and access decision for auditability.
+
+The result is not a generic chatbot. It is a local, auditable school assistance
+workflow aimed at Digital Equity and Future of Education.
+
+## Gemma 4 usage
+
+The demo is built around Gemma 4 E4B running locally through llama.cpp with an
+OpenAI-compatible HTTP API. The app uses Gemma in two places:
+
+- tool planning: pick from a small, validated set of school-assistance tools;
+- grounded composition: generate the final answer from retrieved evidence and
+  policy decisions.
+
+If the local model is unavailable, the app falls back to a deterministic planner
+and composer so judges can still inspect the product flow. The intended
+submission demo should run with the local Gemma service enabled.
+
+Official references used for this design:
+
+- Kaggle challenge: https://www.kaggle.com/competitions/gemma-4-good-hackathon
+- Gemma 4 launch: https://blog.google/innovation-and-ai/technology/developers-tools/gemma-4/
+- Gemma 4 model card: https://ai.google.dev/gemma/docs/core/model_card_4
+- Gemma 4 function calling guide: https://ai.google.dev/gemma/docs/capabilities/text/function-calling-gemma4
+
+## Quick start
+
+Install Python dependencies with uv:
+
+```bash
+uv sync --dev
+```
+
+Start the demo app without a model, using the deterministic fallback:
+
+```bash
+uv run streamlit run src/eduassist_gemma_good/app.py
+```
+
+Start the local Gemma 4 E4B service:
+
+```bash
+cp .env.example .env
+make llm-up
+```
+
+Then run the app with Gemma enabled:
+
+```bash
+make app
+```
+
+Open http://localhost:8501.
+
+## Evaluation
+
+Run the fast offline evaluation:
+
+```bash
+make eval
+```
+
+Run the same evaluation with local Gemma calls:
+
+```bash
+uv run python -m eduassist_gemma_good.eval_runner --use-llm
+```
+
+Reports are written to `artifacts/eval_report.json` and
+`artifacts/eval_report.md`.
+
+## Repository map
+
+- `src/eduassist_gemma_good/` - demo app and local-first assistant engine.
+- `data/demo/public/` - synthetic public school documents.
+- `data/demo/protected/` - synthetic protected student snapshots.
+- `data/demo/evals/` - small evaluation set for demo regression checks.
+- `infra/compose/` - local Gemma 4 E4B service and optional demo-web service.
+- `docs/submission/` - hackathon writeup, demo script, and evaluation plan.
+
+## Safety posture
+
+- No real student data is stored here.
+- Model calls never access a database directly.
+- Tools are explicit, narrow, and validated before execution.
+- Protected answers are denied unless the selected persona has scope.
+- The final answer is instructed to use only retrieved evidence.
+

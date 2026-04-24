@@ -1,0 +1,61 @@
+name: ${COMPOSE_PROJECT_NAME:-eduassist-gemma-good}
+
+services:
+  local-llm-gemma4e4b:
+    build:
+      context: ../..
+      dockerfile: infra/compose/local-llm/llama-cpp/Dockerfile
+      args:
+        LLAMA_CPP_REF: ${LOCAL_LLM_LLAMA_CPP_REF:-ff5ef8278615a2462b79b50abdf3cc95cfb31c6f}
+        CUDA_ARCHITECTURES: ${LOCAL_LLM_GEMMA4E4B_CUDA_ARCH:-89-real}
+    container_name: eduassist-good-local-llm-gemma4e4b
+    profiles: ["local-llm"]
+    gpus: all
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+      LOCAL_LLM_GEMMA4E4B_HF_REPO: ${LOCAL_LLM_GEMMA4E4B_HF_REPO:-ggml-org/gemma-4-E4B-it-GGUF:Q4_K_M}
+      LOCAL_LLM_GEMMA4E4B_MODEL_PATH: ${LOCAL_LLM_GEMMA4E4B_MODEL_PATH:-}
+      LOCAL_LLM_GEMMA4E4B_CTX_SIZE: ${LOCAL_LLM_GEMMA4E4B_CTX_SIZE:-8192}
+      LOCAL_LLM_GEMMA4E4B_THREADS: ${LOCAL_LLM_GEMMA4E4B_THREADS:-8}
+      LOCAL_LLM_GEMMA4E4B_PARALLEL: ${LOCAL_LLM_GEMMA4E4B_PARALLEL:-1}
+      LOCAL_LLM_GEMMA4E4B_GPU_LAYERS: ${LOCAL_LLM_GEMMA4E4B_GPU_LAYERS:-999}
+      LOCAL_LLM_GEMMA4E4B_CACHE_TYPE_K: ${LOCAL_LLM_GEMMA4E4B_CACHE_TYPE_K:-q4_0}
+      LOCAL_LLM_GEMMA4E4B_CACHE_TYPE_V: ${LOCAL_LLM_GEMMA4E4B_CACHE_TYPE_V:-q4_0}
+      LOCAL_LLM_API_KEY: ${LOCAL_LLM_API_KEY:-local-llm}
+    ports:
+      - "${LOCAL_LLM_GEMMA4E4B_PORT:-18081}:8080"
+    volumes:
+      - gemma4e4b-cache:/root/.cache
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/v1/models >/dev/null"]
+      interval: 20s
+      timeout: 10s
+      retries: 20
+    restart: unless-stopped
+
+  demo-web:
+    image: ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+    container_name: eduassist-good-demo-web
+    profiles: ["demo"]
+    working_dir: /workspace
+    command: >
+      sh -c "uv sync --dev &&
+             uv run streamlit run src/eduassist_gemma_good/app.py
+             --server.address 0.0.0.0
+             --server.port 8501"
+    environment:
+      GEMMA_BASE_URL: http://local-llm-gemma4e4b:8080/v1
+      GEMMA_API_KEY: ${LOCAL_LLM_API_KEY:-local-llm}
+      GEMMA_MODEL: ${GEMMA_MODEL:-ggml-org_gemma-4-E4B-it-GGUF_gemma-4-e4b-it-Q4_K_M.gguf}
+    ports:
+      - "8501:8501"
+    volumes:
+      - ../..:/workspace
+      - uv-cache:/root/.cache/uv
+    depends_on:
+      local-llm-gemma4e4b:
+        condition: service_healthy
+
+volumes:
+  gemma4e4b-cache:
+  uv-cache:

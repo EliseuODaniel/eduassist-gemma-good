@@ -1,0 +1,28 @@
+{
+  "stu_ana_luiza": {
+    "name": "Ana Luiza Costa",
+    "grade_level": "8th grade, class 8A",
+    "guardian": "Marina Costa",
+    "attendance_rate": 91,
+    "current_focus": "linear equations and missing algebra homework",
+    "latest_alert": "Ana missed one algebra assignment and should attend the June recovery workshop.",
+    "subject_averages": {
+      "Mathematics": 6.4,
+      "Portuguese": 7.8,
+      "Science": 7.1
+    }
+  },
+  "stu_mateus_rocha": {
+    "name": "Mateus Rocha",
+    "grade_level": "8th grade, class 8A",
+    "guardian": "Roberto Rocha",
+    "attendance_rate": 97,
+    "current_focus": "reading comprehension",
+    "latest_alert": "Mateus is up to date with assignments and has no active attendance alert.",
+    "subject_averages": {
+      "Mathematics": 8.1,
+      "Portuguese": 6.9,
+      "Science": 8.4
+    }
+  }
+}
