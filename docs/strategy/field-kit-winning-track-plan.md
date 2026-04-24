@@ -1,6 +1,6 @@
 # EduAssist Field Kit Winning Track Plan
 
-Status: planning complete, ready for implementation.
+Status: Phase 1 implemented, Phase 2 ready.
 
 Branch: `codex/field-kit-winning-track`.
 
@@ -253,13 +253,15 @@ Versioned artifacts:
 
 Goal: keep current behavior but reshape the app around Field Kit workflows.
 
+Implementation status: complete on this branch.
+
 Tasks:
 
-- Rename visible product concept to EduAssist Field Kit on the branch.
-- Add workflow mode selector.
-- Move current question bank into scenario cards.
-- Add "action output" panel for checklist/plan/message.
-- Keep all current tests passing.
+- Rename visible product concept to EduAssist Field Kit on the branch. Done.
+- Add workflow mode selector. Done.
+- Move current question bank into scenario cards. Done.
+- Add "action output" panel for checklist/plan/message. Done.
+- Keep all current tests passing. Done.
 
 Exit criteria:
 

@@ -8,8 +8,14 @@ from pathlib import Path
 
 import streamlit as st
 
+from eduassist_gemma_good.action_outputs import ActionOutput, action_output_from_response
 from eduassist_gemma_good.config import Settings, load_settings
 from eduassist_gemma_good.demo_engine import DemoEngine
+from eduassist_gemma_good.field_kit import (
+    FIELD_KIT_WORKFLOWS,
+    FieldKitWorkflow,
+    workflow_option_label,
+)
 from eduassist_gemma_good.question_bank import (
     QUESTION_GROUPS,
     PreparedQuestion,
@@ -55,6 +61,16 @@ def install_theme() -> None:
         .ea-band strong {
             color: #0f172a;
         }
+        .ea-workflow {
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 0.9rem 1rem;
+            background: #f0f9ff;
+            margin-bottom: 0.75rem;
+        }
+        .ea-workflow strong {
+            color: #075985;
+        }
         .ea-pill {
             border: 1px solid #cbd5e1;
             border-radius: 999px;
@@ -74,6 +90,13 @@ def install_theme() -> None:
             border-color: #fecaca;
             background: #fef2f2;
             color: #991b1b;
+        }
+        .ea-message {
+            border-left: 4px solid #0ea5e9;
+            padding: 0.65rem 0.8rem;
+            background: #f8fafc;
+            color: #0f172a;
+            margin-top: 0.5rem;
         }
         </style>
         """,
@@ -118,6 +141,21 @@ def render_question_coverage(questions: tuple[PreparedQuestion, ...]) -> None:
     public_col.metric("Public", counts["public_information"])
     allowed_col.metric("Allowed", counts["authorized_support"])
     st.metric("Denied", counts["privacy_guardrails"])
+
+
+def render_workflow_card(workflow: FieldKitWorkflow, case_count: int) -> None:
+    st.markdown(
+        f"""
+        <div class="ea-workflow">
+            <strong>{escape_html(workflow.label)}</strong><br />
+            <span class="ea-pill">user: {escape_html(workflow.user)}</span>
+            <span class="ea-pill">cases: {case_count}</span>
+            <span class="ea-pill">output: {escape_html(workflow.action_label)}</span>
+            <p>{escape_html(workflow.demo_goal)}</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def render_runtime(settings: Settings, use_llm: bool) -> None:
@@ -177,14 +215,39 @@ def render_trace(response: AssistantResponse) -> None:
             st.write(f"- {note}")
 
 
+def render_action_output(output: ActionOutput) -> None:
+    st.subheader("Action Output")
+    st.markdown(f"**{output.title}**")
+    checklist_col, message_col = st.columns([0.95, 1.05], gap="medium")
+    with checklist_col:
+        st.markdown("**Checklist**")
+        for item in output.checklist:
+            st.write(f"- {item}")
+        if output.plan:
+            st.markdown("**Plan**")
+            for item in output.plan:
+                st.write(f"- {item}")
+    with message_col:
+        st.markdown("**Message draft**")
+        st.markdown(
+            f"""
+            <div class="ea-message">
+                {escape_html(output.message)}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.caption(output.safety_note)
+
+
 def main() -> None:
-    st.set_page_config(page_title="EduAssist Local", page_icon="EA", layout="wide")
+    st.set_page_config(page_title="EduAssist Field Kit", page_icon="EA", layout="wide")
     install_theme()
     settings = load_settings()
 
-    st.title("EduAssist Local")
+    st.title("EduAssist Field Kit")
     st.markdown(
-        '<p class="ea-caption">Gemma 4 local-first school assistance demo</p>',
+        '<p class="ea-caption">Offline-first school service kit powered by local Gemma 4</p>',
         unsafe_allow_html=True,
     )
 
@@ -201,22 +264,25 @@ def main() -> None:
     with st.sidebar:
         render_question_coverage(prepared_questions)
 
-    group_key = st.selectbox(
-        "Demo scenario",
-        options=list(QUESTION_GROUPS),
-        format_func=lambda key: QUESTION_GROUPS[key].label,
+    workflow_key = st.selectbox(
+        "Field kit workflow",
+        options=list(FIELD_KIT_WORKFLOWS),
+        format_func=workflow_option_label,
         index=0,
     )
+    workflow = FIELD_KIT_WORKFLOWS[workflow_key]
+    group_key = workflow.question_group_key
     group = QUESTION_GROUPS[group_key]
     group_questions = filter_questions(prepared_questions, group_key)
     group_question_ids = [question.id for question in group_questions]
+    render_workflow_card(workflow, len(group_questions))
 
     current_question_id = st.session_state.get("selected_question_id")
     if current_question_id not in group_question_ids:
         st.session_state["selected_question_id"] = group_question_ids[0]
 
     question_id = st.selectbox(
-        "Prepared question",
+        "Scenario card",
         options=group_question_ids,
         key="selected_question_id",
         format_func=lambda key: question_option_label(
@@ -248,7 +314,7 @@ def main() -> None:
     st.markdown(
         f"""
         <div class="ea-band">
-            <strong>Expected outcome</strong><br />
+            <strong>Scenario outcome</strong><br />
             {escape_html(group.expected)}<br />
             <span class="ea-pill">{escape_html(selected_question.id)}</span>
             <span class="ea-pill">expected tool: {expected_tool}</span>
@@ -261,7 +327,7 @@ def main() -> None:
     left, right = st.columns([1.05, 0.95], gap="large")
 
     with left:
-        st.subheader("Question")
+        st.subheader("Field Request")
         question = st.text_area("Ask", key="question_text", height=145)
         run = st.button("Run", type="primary", width="stretch")
 
@@ -284,6 +350,7 @@ def main() -> None:
         metrics[1].metric("Runtime", response.runtime_mode.title())
         metrics[2].metric("Tools", str(len(response.tool_results)))
 
+        render_action_output(action_output_from_response(response))
         render_trace(response)
 
 
