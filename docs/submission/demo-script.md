@@ -14,9 +14,12 @@ make app
 Mention that Gemma 4 E4B is served locally through llama.cpp and the app talks
 to it through an OpenAI-compatible endpoint.
 
+In the sidebar, show that the Gemma endpoint is online. The app should display
+the local model id returned by `/v1/models`.
+
 ## Scene 2: Public school information
 
-Persona: Public visitor.
+Demo scenario: Public enrollment question.
 
 Question:
 
@@ -32,7 +35,7 @@ Show:
 
 ## Scene 3: Authorized guardian support
 
-Persona: Marina Costa, guardian of Ana Luiza.
+Demo scenario: Authorized recovery plan.
 
 Question:
 
@@ -49,7 +52,7 @@ Show:
 
 ## Scene 4: Safe denial
 
-Persona: Marina Costa, guardian of Ana Luiza.
+Demo scenario: Restricted data denial.
 
 Question:
 
