@@ -57,6 +57,13 @@ This matches the Gemma 4 design strengths documented by Google: local/edge
 deployment, native system prompts, long context, multilingual behavior,
 structured output, and function-calling style workflows.
 
+Local validation on April 24, 2026 used the Q4_K_M GGUF artifact from
+`ggml-org/gemma-4-E4B-it-GGUF` on an NVIDIA GeForce RTX 4070 Laptop GPU. The
+llama.cpp runtime reported `offloaded 43/43 layers to GPU`, `CUDA0` model, KV,
+and compute buffers, and generation-time `nvidia-smi` samples showed 86-92% GPU
+utilization with about 4.6 GB VRAM in use. The Gemma-enabled 24-question
+regression suite passed 24/24 cases.
+
 ## Safety and privacy
 
 - The demo contains synthetic data only.

@@ -68,7 +68,8 @@ class DemoEngine:
         if self.use_llm and self.settings.gemma_enable_planner:
             response = self.gemma.chat(
                 planner_prompt(question, persona, detected_student_id),
-                max_tokens=350,
+                max_tokens=900,
+                temperature=0.0,
             )
             if response is not None:
                 parsed = parse_json_object(response.text)

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-hf_repo="${LOCAL_LLM_HF_REPO:-${LOCAL_LLM_GEMMA4E4B_HF_REPO:-ggml-org/gemma-4-E4B-it-GGUF:Q4_K_M}}"
-hf_file="${LOCAL_LLM_HF_FILE:-}"
+hf_repo="${LOCAL_LLM_HF_REPO:-${LOCAL_LLM_GEMMA4E4B_HF_REPO:-ggml-org/gemma-4-E4B-it-GGUF}}"
+hf_file="${LOCAL_LLM_HF_FILE:-${LOCAL_LLM_GEMMA4E4B_HF_FILE:-gemma-4-E4B-it-Q4_K_M.gguf}}"
 model_path="${LOCAL_LLM_MODEL_PATH:-${LOCAL_LLM_GEMMA4E4B_MODEL_PATH:-}}"
 
 if [[ -z "${model_path}" ]]; then

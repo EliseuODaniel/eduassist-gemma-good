@@ -35,12 +35,13 @@ class GemmaClient:
         messages: Sequence[dict[str, str]],
         *,
         max_tokens: int = 700,
+        temperature: float = 0.4,
     ) -> ModelText | None:
         try:
             response = self.client.chat.completions.create(
                 model=self.settings.gemma_model,
                 messages=list(messages),
-                temperature=0.4,
+                temperature=temperature,
                 top_p=0.95,
                 max_tokens=max_tokens,
             )
@@ -96,7 +97,12 @@ def planner_prompt(
                 "Return JSON with this shape: "
                 '{"tool_calls":[{"name":"...", "arguments":{}}], '
                 '"safety_notes":["..."]}. '
-                "Use deny_request for clearly unauthorized protected data."
+                "Use deny_request for clearly unauthorized protected data. "
+                "If the user says my child and exactly one synthetic student id is "
+                "authorized, use that student id. "
+                "If the user asks for a recovery, study, or support plan for an "
+                "authorized student, include get_student_snapshot first and "
+                "build_study_plan second."
             ),
         },
     ]

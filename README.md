@@ -67,6 +67,10 @@ cp .env.example .env
 make llm-up
 ```
 
+The first run builds the CUDA-enabled llama.cpp image and downloads
+`gemma-4-E4B-it-Q4_K_M.gguf` from `ggml-org/gemma-4-E4B-it-GGUF`, so it can take
+several minutes. Later runs reuse the Docker image and Hugging Face cache.
+
 Then run the app with Gemma enabled:
 
 ```bash
@@ -92,6 +96,16 @@ uv run python -m eduassist_gemma_good.eval_runner --use-llm
 Reports are written to `artifacts/eval_report.json` and
 `artifacts/eval_report.md`.
 
+Current local validation:
+
+- Gemma runtime: `ggml-org/gemma-4-E4B-it-GGUF`, file
+  `gemma-4-E4B-it-Q4_K_M.gguf`;
+- hardware smoke: NVIDIA GeForce RTX 4070 Laptop GPU, 8 GB VRAM;
+- CUDA offload confirmed by llama.cpp logs: `offloaded 43/43 layers to GPU`;
+- generation-time GPU utilization observed at 86-92% with about 4.6 GB VRAM in
+  use;
+- Gemma-enabled evaluation: 24/24 passed, pass rate 1.0.
+
 ## Repository map
 
 - `src/eduassist_gemma_good/` - demo app and local-first assistant engine.
@@ -108,4 +122,3 @@ Reports are written to `artifacts/eval_report.json` and
 - Tools are explicit, narrow, and validated before execution.
 - Protected answers are denied unless the selected persona has scope.
 - The final answer is instructed to use only retrieved evidence.
-
