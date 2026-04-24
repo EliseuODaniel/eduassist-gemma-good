@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from pathlib import Path
+
+from .eval_cases import load_question_cases
 
 
 @dataclass(frozen=True)
@@ -36,7 +37,7 @@ QUESTION_GROUPS = {
     ),
     "all_cases": QuestionGroup(
         label="All prepared questions",
-        expected="Full 24-question evaluation battery",
+        expected="Full expanded evaluation battery",
     ),
 }
 
@@ -44,10 +45,7 @@ QUESTION_GROUPS = {
 def load_prepared_questions(data_dir: Path) -> tuple[PreparedQuestion, ...]:
     path = data_dir / "evals" / "gemma_good_24q.jsonl"
     questions: list[PreparedQuestion] = []
-    for line in path.read_text(encoding="utf-8").splitlines():
-        if not line.strip():
-            continue
-        raw = json.loads(line)
+    for raw in load_question_cases(path):
         questions.append(
             PreparedQuestion(
                 id=raw["id"],

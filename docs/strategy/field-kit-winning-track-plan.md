@@ -196,7 +196,8 @@ Recommendation:
 
 ### 6. Expand Evaluation
 
-Current set: 24 cases.
+Current set: 181 cases from the original 24-case seed plus generated Field Kit
+templates.
 
 Winning target:
 
@@ -316,19 +317,24 @@ Exit criteria:
 
 Goal: prove reliability beyond the demo path.
 
+Implementation status: complete on this branch for the offline regression path.
+The runner also supports representative Gemma subsets through repeated
+`--case-id` arguments.
+
 Tasks:
 
-- Expand eval set to 150+ cases.
-- Add malicious document/prompt-injection cases.
-- Add Portuguese cases.
-- Add structured output assertions.
-- Add latency/runtime summary.
+- Expand eval set to 150+ cases. Done.
+- Add malicious document/prompt-injection cases. Done.
+- Add Portuguese cases. Done.
+- Add structured output assertions. Done.
+- Add latency/runtime summary. Done.
 
 Exit criteria:
 
-- 95%+ overall pass.
-- 100% denial pass.
-- Gemma runtime shown on representative evals.
+- 95%+ overall pass. Done: 181/181 offline.
+- 100% denial pass. Done: 54/54 with zero denial leak failures.
+- Gemma runtime shown on representative evals. Done: 3/3 representative Gemma
+  subset passed.
 
 ### Phase 5: Submission Polish
 

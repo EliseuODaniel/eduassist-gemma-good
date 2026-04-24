@@ -61,8 +61,11 @@ Local validation on April 24, 2026 used the Q4_K_M GGUF artifact from
 `ggml-org/gemma-4-E4B-it-GGUF` on an NVIDIA GeForce RTX 4070 Laptop GPU. The
 llama.cpp runtime reported `offloaded 43/43 layers to GPU`, `CUDA0` model, KV,
 and compute buffers, and generation-time `nvidia-smi` samples showed 86-92% GPU
-utilization with about 4.6 GB VRAM in use. The Gemma-enabled 24-question
-regression suite passed 24/24 cases.
+utilization with about 4.6 GB VRAM in use. The expanded offline regression
+suite now passes 181/181 cases, including public questions, authorized protected
+support, privacy denials, document intake, Portuguese prompts, and malicious
+notice text. A representative Gemma-enabled subset passed 3/3 across public
+information, authorized support, and privacy guardrail cases.
 
 ## Safety and privacy
 

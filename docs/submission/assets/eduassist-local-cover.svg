@@ -34,8 +34,8 @@
   <path d="M966 277 L980 289 L966 301" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
 
   <rect x="104" y="426" width="252" height="112" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
-  <text x="132" y="466" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#0f172a">24 prepared cases</text>
-  <text x="132" y="502" font-family="Inter, Arial, sans-serif" font-size="18" fill="#475569">12 public | 7 allowed | 5 denied</text>
+  <text x="132" y="466" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#0f172a">181 eval cases</text>
+  <text x="132" y="502" font-family="Inter, Arial, sans-serif" font-size="18" fill="#475569">plus document safety checks</text>
 
   <rect x="404" y="426" width="252" height="112" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
   <text x="432" y="466" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#0f172a">Runs on GPU</text>
@@ -46,7 +46,7 @@
   <text x="732" y="502" font-family="Inter, Arial, sans-serif" font-size="18" fill="#475569">synthetic records only</text>
 
   <rect x="1004" y="426" width="168" height="112" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
-  <text x="1032" y="466" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#0f172a">24/24</text>
+  <text x="1032" y="466" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#0f172a">181/181</text>
   <text x="1032" y="502" font-family="Inter, Arial, sans-serif" font-size="18" fill="#475569">local eval pass</text>
 
   <text x="104" y="610" font-family="Inter, Arial, sans-serif" font-size="22" fill="#334155">Future of Education | Digital Equity | Local-first AI | Auditable school support</text>

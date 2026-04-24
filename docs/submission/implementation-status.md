@@ -13,11 +13,11 @@ demo video and paste the final links into Kaggle.
 - Explicit tool layer for public search, protected student snapshots, study
   plans, and denials.
 - Persona-scoped access checks for public visitors, guardians, and teachers.
-- Prepared demo question picker sourced from the registered 24-question eval
-  set.
+- Prepared demo question picker sourced from the expanded question battery.
 - Tool trace, evidence panel, runtime mode, and access decision in the UI.
-- Offline and Gemma-enabled 24-case evaluation runs with 24/24 passing locally.
-- Final pre-submission Gemma rerun with all 24 rows reporting runtime `gemma`.
+- Expanded offline evaluation with 181/181 passing locally, including 54/54
+  restricted-data denials and zero denial leak failures.
+- Representative Gemma subset support through repeated `--case-id` arguments.
 - Draft technical writeup, demo script, evaluation plan, and repository scope.
 - Kaggle submission package with title, summary, writeup, public links, and
   final checklist.

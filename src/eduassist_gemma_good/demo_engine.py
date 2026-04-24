@@ -21,7 +21,7 @@ from .schema import (
     ToolCall,
     ToolResult,
 )
-from .text_utils import normalize_text
+from .text_utils import normalize_text, tokens
 from .tools import ToolExecutor
 
 
@@ -97,13 +97,14 @@ class DemoEngine:
         detected_student_id: str | None,
     ) -> tuple[ToolCall, ...]:
         normalized = normalize_text(question)
+        normalized_tokens = tokens(question)
         target_student_id = detected_student_id
         if (
             target_student_id is None
             and persona.student_ids
-            and any(
-                term in normalized
-                for term in ("my child", "minha filha", "meu filho", "ana", "grades", "notas")
+            and (
+                any(phrase in normalized for phrase in ("my child", "minha filha", "meu filho"))
+                or {"ana", "grades", "notas"} & normalized_tokens
             )
         ):
             target_student_id = persona.student_ids[0]
@@ -132,7 +133,17 @@ class DemoEngine:
 
         if target_student_id:
             calls = [ToolCall("get_student_snapshot", {"student_id": target_student_id})]
-            if any(term in normalized for term in ("plan", "study", "plano", "estudo", "recover")):
+            planning_terms = {
+                "plan",
+                "study",
+                "plano",
+                "estudo",
+                "recover",
+                "recovery",
+                "recuperar",
+                "recuperacao",
+            }
+            if planning_terms & normalized_tokens:
                 calls.append(
                     ToolCall(
                         "build_study_plan",

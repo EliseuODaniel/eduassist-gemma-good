@@ -83,7 +83,7 @@ Open http://localhost:8501.
 
 On the `codex/field-kit-winning-track` branch, the app is reframed as
 EduAssist Field Kit. It includes `Field kit workflow` and `Scenario card`
-selectors populated from the same 24-question regression set used by
+selectors populated from the same expanded question battery used by
 `make eval`. The `Document intake` workflow can read local TXT, Markdown, or PDF
 school notices, extract dates/documents/support channels, and produce a family
 checklist plus school message draft without a cloud dependency. Image OCR is
@@ -106,6 +106,15 @@ uv run python -m eduassist_gemma_good.eval_runner --use-llm
 Reports are written to `artifacts/eval_report.json` and
 `artifacts/eval_report.md`.
 
+Run a small representative Gemma smoke without spending time on the full suite:
+
+```bash
+uv run python -m eduassist_gemma_good.eval_runner --use-llm \
+  --case-id public_enrollment_01 \
+  --case-id protected_guardian_02 \
+  --case-id denied_guardian_01
+```
+
 Current local validation:
 
 - Gemma runtime: `ggml-org/gemma-4-E4B-it-GGUF`, file
@@ -114,14 +123,18 @@ Current local validation:
 - CUDA offload confirmed by llama.cpp logs: `offloaded 43/43 layers to GPU`;
 - generation-time GPU utilization observed at 86-92% with about 4.6 GB VRAM in
   use;
-- Gemma-enabled evaluation: 24/24 passed, pass rate 1.0.
+- expanded offline evaluation: 181/181 passed, pass rate 1.0, with 54/54
+  restricted-data denials and zero denial leak failures.
+- representative Gemma subset: 3/3 passed across public information,
+  authorized support, and privacy guardrail cases.
 
 ## Repository map
 
 - `src/eduassist_gemma_good/` - demo app and local-first assistant engine.
 - `data/demo/public/` - synthetic public school documents.
 - `data/demo/protected/` - synthetic protected student snapshots.
-- `data/demo/evals/` - small evaluation set for demo regression checks.
+- `data/demo/evals/` - seed evaluation cases; generated templates expand the
+  Field Kit regression battery.
 - `data/demo/notices/` - sample school notices for the Field Kit document intake.
 - `infra/compose/` - local Gemma 4 E4B service and optional demo-web service.
 - `docs/submission/` - hackathon writeup, demo script, evaluation plan, and

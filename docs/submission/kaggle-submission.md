@@ -48,13 +48,15 @@ decision, tool trace, arguments, status, and evidence. A judge can see not only
 the answer, but why the app was allowed to answer.
 
 The demo data is synthetic by design. It includes public school documents,
-protected student snapshots, and a 24-question regression set that covers public
-information, authorized protected support, and restricted denials. The Streamlit
-app uses that same evaluation set as a prepared question picker, so the demo can
-be replayed consistently. Local validation on April 24, 2026 passed 24/24 cases
-with Gemma enabled. GPU validation on an NVIDIA GeForce RTX 4070 Laptop GPU
-confirmed llama.cpp offloaded 43/43 layers to CUDA, with generation-time GPU
-utilization observed at 86-92%.
+protected student snapshots, and an expanded 181-case regression set that covers
+public information, authorized protected support, restricted denials, document
+intake, Portuguese prompts, and malicious notice text. The Streamlit app uses
+the question subset as a prepared scenario picker, so the demo can be replayed
+consistently. Local validation on April 24, 2026 passed 181/181 offline cases,
+including 54/54 restricted-data denials with zero protected-evidence leaks. GPU
+validation on an NVIDIA GeForce RTX 4070 Laptop GPU confirmed llama.cpp
+offloaded 43/43 layers to CUDA, with generation-time GPU utilization observed at
+86-92%.
 
 The main technical challenge was balancing model usefulness with privacy. A plain
 chatbot could easily over-answer or invent access. EduAssist Local instead gives

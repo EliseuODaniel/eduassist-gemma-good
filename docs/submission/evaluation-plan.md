@@ -1,12 +1,13 @@
 # Evaluation Plan
 
-The demo includes a small 24-question regression set in
-`data/demo/evals/gemma_good_24q.jsonl`.
+The demo keeps the original 24-question seed regression set in
+`data/demo/evals/gemma_good_24q.jsonl` and expands it through versioned
+templates in `src/eduassist_gemma_good/eval_cases.py`.
 
-The Streamlit app exposes this same set as prepared demo questions, grouped by
-public information, authorized support, and privacy guardrail scenarios. The
-scenario is selected first, then the prepared question loads its registered
-persona and expected outcome.
+The Streamlit app exposes the expanded question battery as prepared demo
+questions, grouped by public information, authorized support, and privacy
+guardrail scenarios. The scenario is selected first, then the prepared question
+loads its registered persona and expected outcome.
 
 The evaluation checks:
 
@@ -14,7 +15,14 @@ The evaluation checks:
 - whether public, protected, and restricted requests receive the expected access
   decision;
 - whether denial cases produce a denied tool result;
-- whether the runtime used Gemma or deterministic fallback.
+- whether denial cases expose no protected evidence;
+- whether structured action outputs include the expected checklist/message/plan
+  terms;
+- whether local document intake extracts expected notice facts while ignoring
+  prompt-injection text in generated family actions;
+- whether the runtime used Gemma, local document processing, or deterministic
+  fallback;
+- latency p50, p95, and max for the run.
 
 Run:
 
@@ -28,9 +36,18 @@ Run with Gemma enabled:
 uv run python -m eduassist_gemma_good.eval_runner --use-llm
 ```
 
+Run a representative Gemma subset:
+
+```bash
+uv run python -m eduassist_gemma_good.eval_runner --use-llm \
+  --case-id public_enrollment_01 \
+  --case-id protected_guardian_02 \
+  --case-id denied_guardian_01
+```
+
 ## Latest Local Result
 
-On April 24, 2026, the suite passed with the local Gemma runtime enabled:
+On April 24, 2026, the expanded offline suite passed locally:
 
 - Runtime: Gemma 4 E4B served by llama.cpp through an OpenAI-compatible endpoint.
 - Model artifact: `ggml-org/gemma-4-E4B-it-GGUF` /
@@ -39,12 +56,16 @@ On April 24, 2026, the suite passed with the local Gemma runtime enabled:
 - GPU validation: llama.cpp reported `offloaded 43/43 layers to GPU`, with
   `CUDA0` model, KV, and compute buffers. A live `nvidia-smi` sample during
   generation showed 86-92% GPU utilization and about 4.6 GB VRAM in use.
-- Result: 24/24 cases passed, pass rate 1.0.
-- Coverage: public document search, authorized protected snapshots, study-plan
-  tool calls, and restricted-data denials all used Gemma-planned tool traces.
-- Final pre-submission rerun: `uv run python -m
-  eduassist_gemma_good.eval_runner --use-llm` returned `24/24`, pass rate
-  `1.0`, with every row reporting runtime `gemma`.
+- Result: 181/181 cases passed, pass rate 1.0.
+- Coverage: 60 public-information cases, 55 authorized-support cases, 54
+  privacy-guardrail cases, and 12 document-intake cases.
+- Denial safety: 54/54 restricted-data denials passed with zero protected
+  evidence leaks.
+- Structured checks: checklist/message/plan assertions are enforced for question
+  responses, and notice intake checks expected facts plus prompt-injection
+  exclusion from family-facing actions.
+- Representative Gemma subset: 3/3 passed across public information,
+  authorized support, and privacy guardrail cases.
 
 This is not a benchmark of raw model intelligence. It is a product regression
 suite that tests the core promises of the submission:

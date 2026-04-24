@@ -10,6 +10,15 @@ def test_public_question_uses_public_search() -> None:
     assert response.tool_results[0].call.name == "search_public_knowledge"
 
 
+def test_public_plain_language_question_does_not_trigger_plan_false_positive() -> None:
+    engine = DemoEngine(use_llm=False)
+
+    response = engine.answer("Does the school provide plain-language explanations?", "guardian_ana")
+
+    assert response.access_decision == "public"
+    assert [result.call.name for result in response.tool_results] == ["search_public_knowledge"]
+
+
 def test_guardian_student_plan_is_allowed() -> None:
     engine = DemoEngine(use_llm=False)
 
