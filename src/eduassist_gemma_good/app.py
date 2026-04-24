@@ -4,50 +4,20 @@ import html
 import json
 import urllib.error
 import urllib.request
-from dataclasses import dataclass
+from pathlib import Path
 
 import streamlit as st
 
 from eduassist_gemma_good.config import Settings, load_settings
 from eduassist_gemma_good.demo_engine import DemoEngine
+from eduassist_gemma_good.question_bank import (
+    QUESTION_GROUPS,
+    PreparedQuestion,
+    filter_questions,
+    load_prepared_questions,
+    question_option_label,
+)
 from eduassist_gemma_good.schema import PERSONAS, AssistantResponse
-
-
-@dataclass(frozen=True)
-class DemoScenario:
-    label: str
-    persona_key: str
-    question: str
-    expected: str
-
-
-DEMO_SCENARIOS = {
-    "public_enrollment": DemoScenario(
-        label="Public enrollment question",
-        persona_key="public",
-        question="What documents do I need for enrollment?",
-        expected="Public answer grounded in school documents",
-    ),
-    "guardian_plan": DemoScenario(
-        label="Authorized recovery plan",
-        persona_key="guardian_ana",
-        question="Create a recovery study plan for my child.",
-        expected="Protected support answer for Ana Luiza only",
-    ),
-    "safe_denial": DemoScenario(
-        label="Restricted data denial",
-        persona_key="guardian_ana",
-        question="Can you show me another student's grades?",
-        expected="Safe denial without exposing protected records",
-    ),
-    "manual": DemoScenario(
-        label="Manual question",
-        persona_key="guardian_ana",
-        question="How is Ana Luiza doing in math and attendance?",
-        expected="Custom exploration with the selected persona",
-    ),
-}
-
 
 ACCESS_LABELS = {
     "public": "Public",
@@ -127,6 +97,18 @@ def gemma_health(base_url: str) -> dict[str, str]:
     return {"status": "online", "detail": model}
 
 
+@st.cache_data
+def cached_prepared_questions(data_dir: str) -> tuple[PreparedQuestion, ...]:
+    return load_prepared_questions(Path(data_dir))
+
+
+def selected_question_for_id(
+    questions: tuple[PreparedQuestion, ...],
+    question_id: str,
+) -> PreparedQuestion:
+    return next(question for question in questions if question.id == question_id)
+
+
 def render_runtime(settings: Settings, use_llm: bool) -> None:
     health = gemma_health(settings.gemma_base_url) if use_llm else {"status": "off", "detail": ""}
     if health["status"] == "online":
@@ -203,27 +185,60 @@ def main() -> None:
         st.caption(settings.gemma_model)
 
     engine = DemoEngine(settings, use_llm=use_llm)
+    prepared_questions = cached_prepared_questions(str(settings.data_dir))
 
-    scenario_key = st.selectbox(
+    group_key = st.selectbox(
         "Demo scenario",
-        options=list(DEMO_SCENARIOS),
-        format_func=lambda key: DEMO_SCENARIOS[key].label,
+        options=list(QUESTION_GROUPS),
+        format_func=lambda key: QUESTION_GROUPS[key].label,
         index=0,
     )
-    scenario = DEMO_SCENARIOS[scenario_key]
+    group = QUESTION_GROUPS[group_key]
+    group_questions = filter_questions(prepared_questions, group_key)
+    group_question_ids = [question.id for question in group_questions]
+
+    current_question_id = st.session_state.get("selected_question_id")
+    if current_question_id not in group_question_ids:
+        st.session_state["selected_question_id"] = group_question_ids[0]
+
+    question_id = st.selectbox(
+        "Prepared question",
+        options=group_question_ids,
+        key="selected_question_id",
+        format_func=lambda key: question_option_label(
+            selected_question_for_id(prepared_questions, key),
+            PERSONAS[selected_question_for_id(prepared_questions, key).persona_key].label,
+        ),
+    )
+    selected_question = selected_question_for_id(prepared_questions, question_id)
+
+    if st.session_state.get("active_question_id") != selected_question.id:
+        st.session_state["active_question_id"] = selected_question.id
+        st.session_state["question_text"] = selected_question.question
+        st.session_state["persona_key"] = selected_question.persona_key
+
+    persona_options = list(PERSONAS)
+    if "persona_key" not in st.session_state:
+        st.session_state["persona_key"] = selected_question.persona_key
 
     persona_key = st.selectbox(
         "Persona",
-        options=list(PERSONAS),
+        options=persona_options,
         format_func=lambda key: PERSONAS[key].label,
-        index=list(PERSONAS).index(scenario.persona_key),
+        key="persona_key",
     )
+
+    expected_tool = escape_html(selected_question.expected_tool)
+    expected_access = escape_html(ACCESS_LABELS[selected_question.expected_access])
 
     st.markdown(
         f"""
         <div class="ea-band">
             <strong>Expected outcome</strong><br />
-            {escape_html(scenario.expected)}
+            {escape_html(group.expected)}<br />
+            <span class="ea-pill">{escape_html(selected_question.id)}</span>
+            <span class="ea-pill">expected tool: {expected_tool}</span>
+            <span class="ea-pill">expected access: {expected_access}</span>
         </div>
         """,
         unsafe_allow_html=True,
@@ -233,7 +248,7 @@ def main() -> None:
 
     with left:
         st.subheader("Question")
-        question = st.text_area("Ask", value=scenario.question, height=145)
+        question = st.text_area("Ask", key="question_text", height=145)
         run = st.button("Run", type="primary", width="stretch")
 
         if run and question.strip():

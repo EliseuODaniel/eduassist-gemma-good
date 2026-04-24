@@ -3,6 +3,11 @@
 The demo includes a small 24-question regression set in
 `data/demo/evals/gemma_good_24q.jsonl`.
 
+The Streamlit app exposes this same set as prepared demo questions, grouped by
+public information, authorized support, and privacy guardrail scenarios. The
+scenario is selected first, then the prepared question loads its registered
+persona and expected outcome.
+
 The evaluation checks:
 
 - whether the expected tool is used;

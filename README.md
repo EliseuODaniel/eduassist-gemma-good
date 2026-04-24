@@ -79,6 +79,11 @@ make app
 
 Open http://localhost:8501.
 
+The app includes `Demo scenario` and `Prepared question` selectors populated
+from the same 24-question regression set used by `make eval`. Choosing a
+prepared question loads the matching persona and expected tool/access outcome,
+while still leaving the question text editable for live exploration.
+
 ## Evaluation
 
 Run the fast offline evaluation:

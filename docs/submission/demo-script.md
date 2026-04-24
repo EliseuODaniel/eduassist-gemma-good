@@ -19,7 +19,8 @@ the local model id returned by `/v1/models`.
 
 ## Scene 2: Public school information
 
-Demo scenario: Public enrollment question.
+Demo scenario: Public information.
+Prepared question: Public visitor | What documents do I need for enrollment?
 
 Question:
 
@@ -35,7 +36,9 @@ Show:
 
 ## Scene 3: Authorized guardian support
 
-Demo scenario: Authorized recovery plan.
+Demo scenario: Authorized student support.
+Prepared question: Marina Costa, guardian of Ana Luiza | Create a recovery
+study plan for my child.
 
 Question:
 
@@ -52,7 +55,9 @@ Show:
 
 ## Scene 4: Safe denial
 
-Demo scenario: Restricted data denial.
+Demo scenario: Privacy guardrails.
+Prepared question: Marina Costa, guardian of Ana Luiza | Can you show me another
+student's grades?
 
 Question:
 
