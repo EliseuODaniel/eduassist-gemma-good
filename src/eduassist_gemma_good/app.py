@@ -16,7 +16,9 @@ from eduassist_gemma_good.field_kit import (
     FieldKitWorkflow,
     workflow_option_label,
 )
+from eduassist_gemma_good.model_client import GemmaClient
 from eduassist_gemma_good.notice_intake import (
+    IMAGE_NOTICE_SUFFIXES,
     NoticeFacts,
     action_output_from_notice,
     extract_notice_facts,
@@ -318,7 +320,7 @@ def render_notice_facts(facts: NoticeFacts) -> None:
             st.write(f"- {item}")
 
 
-def render_document_intake(data_dir: Path) -> None:
+def render_document_intake(data_dir: Path, settings: Settings, use_llm: bool) -> None:
     samples = sample_notice_paths(data_dir)
     uploaded = st.file_uploader(
         "Upload school notice",
@@ -330,7 +332,12 @@ def render_document_intake(data_dir: Path) -> None:
     if uploaded is not None:
         source_name = uploaded.name
         try:
-            source_text = extract_notice_text(uploaded.name, uploaded.getvalue())
+            source_text = extract_notice_text_for_app(
+                uploaded.name,
+                uploaded.getvalue(),
+                settings,
+                use_llm,
+            )
         except ValueError as exc:
             st.error(str(exc))
             return
@@ -363,6 +370,69 @@ def render_document_intake(data_dir: Path) -> None:
         render_action_output(action_output_from_notice(facts))
 
 
+def render_winning_demo(engine: DemoEngine, settings: Settings) -> None:
+    st.header("Winning Demo Run")
+    st.markdown(
+        '<p class="ea-caption">One end-to-end submission story: notice, public guidance, '
+        "authorized support, and privacy denial.</p>",
+        unsafe_allow_html=True,
+    )
+
+    notice_path = settings.data_dir / "notices" / "enrollment-support-notice.md"
+    if notice_path.exists():
+        with st.expander("1. Document intake", expanded=True):
+            notice_text = extract_notice_text(notice_path.name, notice_path.read_bytes())
+            facts = extract_notice_facts(notice_text, notice_path.name)
+            render_notice_facts(facts)
+            render_action_output(action_output_from_notice(facts))
+
+    demo_cases = (
+        (
+            "2. Public family guidance",
+            "What documents do I need for enrollment?",
+            "public",
+        ),
+        (
+            "3. Authorized student support",
+            "Create a recovery study plan for my child.",
+            "guardian_ana",
+        ),
+        (
+            "4. Privacy guardrail",
+            "Can you show me another student's grades?",
+            "guardian_ana",
+        ),
+    )
+    for title, question, persona_key in demo_cases:
+        with st.expander(title, expanded=True):
+            response = engine.answer(question, persona_key)
+            st.markdown(f"**Persona:** {escape_html(response.persona.label)}")
+            st.markdown(f"**Question:** {escape_html(question)}")
+            st.write(response.answer)
+            metrics = st.columns(3)
+            metrics[0].metric("Access", ACCESS_LABELS[response.access_decision])
+            metrics[1].metric("Runtime", response.runtime_mode.title())
+            metrics[2].metric("Tools", str(len(response.tool_results)))
+            render_action_output(action_output_from_response(response))
+            render_trace(response)
+
+
+def extract_notice_text_for_app(
+    file_name: str,
+    content: bytes,
+    settings: Settings,
+    use_llm: bool,
+) -> str:
+    suffix = Path(file_name).suffix.lower()
+    if use_llm and settings.gemma_enable_vision and suffix in IMAGE_NOTICE_SUFFIXES:
+        response = GemmaClient(settings).transcribe_notice_image(file_name, content)
+        if response is not None:
+            st.caption("Image notice transcribed with local Gemma vision path.")
+            return response.text
+        st.caption("Gemma vision path unavailable; trying local OCR fallback.")
+    return extract_notice_text(file_name, content)
+
+
 def main() -> None:
     st.set_page_config(page_title="EduAssist Field Kit", page_icon="EA", layout="wide")
     install_theme()
@@ -380,12 +450,17 @@ def main() -> None:
         render_runtime(settings, use_llm)
         st.caption(settings.gemma_base_url)
         st.caption(settings.gemma_model)
+        run_winning_demo = st.button("Run winning demo", width="stretch")
 
     engine = DemoEngine(settings, use_llm=use_llm)
     prepared_questions = cached_prepared_questions(str(settings.data_dir))
 
     with st.sidebar:
         render_question_coverage(prepared_questions)
+
+    if run_winning_demo:
+        render_winning_demo(engine, settings)
+        return
 
     workflow_key = st.selectbox(
         "Field kit workflow",
@@ -401,7 +476,7 @@ def main() -> None:
     render_workflow_card(workflow, len(group_questions))
 
     if workflow_key == "document_intake":
-        render_document_intake(settings.data_dir)
+        render_document_intake(settings.data_dir, settings, use_llm)
         return
 
     current_question_id = st.session_state.get("selected_question_id")

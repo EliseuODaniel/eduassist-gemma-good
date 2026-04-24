@@ -1,4 +1,5 @@
 from eduassist_gemma_good.demo_engine import DemoEngine
+from eduassist_gemma_good.model_client import ModelText
 
 
 def test_public_question_uses_public_search() -> None:
@@ -38,3 +39,24 @@ def test_guardian_other_student_is_denied() -> None:
 
     assert response.access_decision == "restricted_denied"
     assert response.tool_results[0].status == "denied"
+
+
+def test_model_plan_completion_adds_missing_study_plan_tool() -> None:
+    engine = DemoEngine(use_llm=True)
+
+    def fake_chat(*args, **kwargs) -> ModelText:
+        return ModelText(
+            text=('{"name":"get_student_snapshot","parameters":{"student_id":"stu_ana_luiza"}}'),
+            runtime_mode="gemma",
+        )
+
+    engine.gemma.chat = fake_chat
+
+    response = engine.answer(
+        "Build a plan for Ana Luiza to recover algebra homework.", "teacher_8a"
+    )
+
+    assert [result.call.name for result in response.tool_results] == [
+        "get_student_snapshot",
+        "build_study_plan",
+    ]

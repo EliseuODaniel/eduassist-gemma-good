@@ -45,6 +45,13 @@ uv run python -m eduassist_gemma_good.eval_runner --use-llm \
   --case-id denied_guardian_01
 ```
 
+Run the broader curated Gemma representative suite:
+
+```bash
+uv run python -m eduassist_gemma_good.eval_runner --use-llm \
+  --representative-gemma-suite
+```
+
 ## Latest Local Result
 
 On April 24, 2026, the expanded offline suite passed locally:
@@ -64,8 +71,11 @@ On April 24, 2026, the expanded offline suite passed locally:
 - Structured checks: checklist/message/plan assertions are enforced for question
   responses, and notice intake checks expected facts plus prompt-injection
   exclusion from family-facing actions.
-- Representative Gemma subset: 3/3 passed across public information,
-  authorized support, and privacy guardrail cases.
+- Curated Gemma representative suite: 12/12 passed with local Gemma through
+  `--representative-gemma-suite`, covering 4 public-information cases, 5
+  authorized-support cases, 3 privacy-guardrail cases, and Portuguese prompts.
+- Local Gemma denial safety in that suite: 3/3 restricted-data denials passed
+  with zero protected-evidence leaks.
 
 This is not a benchmark of raw model intelligence. It is a product regression
 suite that tests the core promises of the submission:

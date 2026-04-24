@@ -32,8 +32,10 @@ Use these versioned assets in the Kaggle media gallery and video planning.
 ## Recommended Video Order
 
 1. Show local Gemma endpoint online.
-2. Run document intake on `enrollment-support-notice.md`.
-3. Run public enrollment guidance and point at retrieval score/matched terms.
-4. Run guardian recovery plan and point at protected evidence scope.
-5. Run cross-student privacy request and point at empty protected evidence.
-6. Show `make eval` metrics or `docs/submission/evidence/sample-outputs.md`.
+2. Click `Run winning demo` for the end-to-end story in one screen.
+3. Run document intake on `enrollment-support-notice.md`.
+4. Run public enrollment guidance and point at retrieval score/matched terms.
+5. Run guardian recovery plan and point at protected evidence scope.
+6. Run cross-student privacy request and point at empty protected evidence.
+7. Show `make eval`, the 12-case Gemma suite command, or
+   `docs/submission/evidence/sample-outputs.md`.

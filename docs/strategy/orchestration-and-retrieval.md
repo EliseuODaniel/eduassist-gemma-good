@@ -20,6 +20,18 @@ Streamlit UI
   -> action output and audit trace
 ```
 
+The Gemma-facing contract is intentionally flexible at the parsing boundary and
+strict at the execution boundary. The planner prompt follows Gemma 4
+function-calling guidance and the parser accepts `parameters`, legacy
+`arguments`, one-call JSON, multi-call JSON, direct JSON arrays, and native
+Gemma `<|tool_call>` markers. After parsing, every call is validated against
+the typed registry before execution. The composer asks Gemma for structured JSON
+that feeds the action-output panel; invalid structure falls back to
+deterministic templates. The executor also completes one narrow workflow: when
+Gemma has selected an authorized student snapshot for an explicit recovery or
+study-plan request but omits `build_study_plan`, the application appends that
+second tool call before execution.
+
 The choice is deliberate for this hackathon fork:
 
 - The demo needs to be easy for judges to run locally with Gemma 4 and minimal

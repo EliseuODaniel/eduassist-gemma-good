@@ -45,6 +45,14 @@ item visible in the UI trace. Public retrieval is local weighted lexical search
 with bilingual query expansion and auditable `rank`, `score`, and
 `matched_terms` metadata.
 
+The Field Kit branch also adapts the prompts and parsers to Gemma's documented
+function-calling behavior. Planner output may use `parameters`, legacy
+`arguments`, one-call JSON, multi-call JSON, direct JSON arrays, or native
+Gemma `<|tool_call>` markers. The composer requests structured JSON for
+answer/checklist/plan/message/safety-note output, and image notice uploads can
+try a local Gemma vision transcription path before falling back to local
+OCR/text extraction.
+
 If the local model is unavailable, the app falls back to a deterministic planner
 and composer so judges can still inspect the product flow. The intended
 submission demo should run with the local Gemma service enabled.
@@ -54,7 +62,12 @@ Official references used for this design:
 - Kaggle challenge: https://www.kaggle.com/competitions/gemma-4-good-hackathon
 - Gemma 4 launch: https://blog.google/innovation-and-ai/technology/developers-tools/gemma-4/
 - Gemma model card: https://ai.google.dev/gemma/docs/model_card
-- Gemma function calling guide: https://ai.google.dev/gemma/docs/capabilities/function-calling
+- Gemma 4 function calling guide:
+  https://ai.google.dev/gemma/docs/capabilities/text/function-calling-gemma4
+- Gemma prompt formatting:
+  https://ai.google.dev/gemma/docs/core/prompt-structure
+- Gemma visual data prompting:
+  https://ai.google.dev/gemma/docs/capabilities/vision/prompt-with-visual-data
 
 ## Quick start
 
@@ -123,6 +136,13 @@ uv run python -m eduassist_gemma_good.eval_runner --use-llm \
   --case-id denied_guardian_01
 ```
 
+Run the larger curated Gemma representative suite:
+
+```bash
+uv run python -m eduassist_gemma_good.eval_runner --use-llm \
+  --representative-gemma-suite
+```
+
 Current local validation:
 
 - Gemma runtime: `ggml-org/gemma-4-E4B-it-GGUF`, file
@@ -133,8 +153,9 @@ Current local validation:
   use;
 - expanded offline evaluation: 181/181 passed, pass rate 1.0, with 54/54
   restricted-data denials and zero denial leak failures.
-- representative Gemma subset: 3/3 passed across public information,
-  authorized support, and privacy guardrail cases.
+- curated Gemma representative suite: 12/12 passed with local Gemma across
+  public information, authorized support, privacy guardrails, and Portuguese
+  cases; denial safety remained 3/3 with zero protected-evidence leaks.
 
 ## Repository map
 
@@ -149,6 +170,8 @@ Current local validation:
   implementation status.
 - `docs/strategy/orchestration-and-retrieval.md` - architecture decision for the
   custom orchestration loop and local retrieval path.
+- `docs/strategy/gemma-4-optimization.md` - official-doc-backed Gemma prompt,
+  tool-call, structured-output, and vision optimization notes.
 - `docs/submission/evidence/sample-outputs.md` - concrete sample outputs for
   the demo story.
 - `docs/submission/media-gallery.md` - versioned SVG assets and video order for

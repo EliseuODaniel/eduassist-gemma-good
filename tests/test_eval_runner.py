@@ -1,5 +1,5 @@
 from eduassist_gemma_good.config import DATA_DIR
-from eduassist_gemma_good.eval_cases import load_eval_cases
+from eduassist_gemma_good.eval_cases import GEMMA_REPRESENTATIVE_CASE_IDS, load_eval_cases
 from eduassist_gemma_good.eval_runner import run_eval
 
 
@@ -31,3 +31,11 @@ def test_eval_can_run_representative_case_subset() -> None:
 
     assert report["total"] == 3
     assert report["passed"] == 3
+
+
+def test_curated_gemma_representative_suite_is_available() -> None:
+    report = run_eval(use_llm=False, case_ids=GEMMA_REPRESENTATIVE_CASE_IDS)
+
+    assert report["total"] == 12
+    assert report["passed"] == 12
+    assert report["by_category"]["privacy_guardrails"]["total"] >= 3

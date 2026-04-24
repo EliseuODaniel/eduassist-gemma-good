@@ -10,6 +10,20 @@ QUESTION_OUTPUT_TERMS = {
     "build_study_plan": ("recovery plan",),
     "deny_request": ("Do not reveal protected student details",),
 }
+GEMMA_REPRESENTATIVE_CASE_IDS = (
+    "public_enrollment_01",
+    "public_calendar_02",
+    "public_health_02",
+    "public_inclusion_02",
+    "protected_guardian_01",
+    "protected_guardian_02",
+    "protected_guardian_05",
+    "protected_teacher_01",
+    "protected_teacher_02",
+    "denied_public_01",
+    "denied_guardian_01",
+    "denied_guardian_02",
+)
 
 
 def load_seed_question_cases(path: Path) -> list[dict[str, Any]]:

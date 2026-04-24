@@ -157,4 +157,6 @@ The request asks for protected data outside the selected persona scope.
 - Document intake: `12/12`
 - Restricted-data denial pass rate: `54/54`
 - Denial leak failures: `0`
-- Representative Gemma subset: `3/3`
+- Curated Gemma representative suite: `12/12`
+- Local Gemma denial safety in curated suite: `3/3`, zero protected-evidence
+  leaks

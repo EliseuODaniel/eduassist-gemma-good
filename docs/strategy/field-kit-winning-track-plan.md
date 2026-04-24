@@ -319,7 +319,7 @@ Goal: prove reliability beyond the demo path.
 
 Implementation status: complete on this branch for the offline regression path.
 The runner also supports representative Gemma subsets through repeated
-`--case-id` arguments.
+`--case-id` arguments and a curated 12-case `--representative-gemma-suite`.
 
 Tasks:
 
@@ -333,8 +333,8 @@ Exit criteria:
 
 - 95%+ overall pass. Done: 181/181 offline.
 - 100% denial pass. Done: 54/54 with zero denial leak failures.
-- Gemma runtime shown on representative evals. Done: 3/3 representative Gemma
-  subset passed.
+- Gemma runtime shown on representative evals. Done: 12/12 curated Gemma
+  representative suite passed with local Gemma.
 
 ### Phase 5: Submission Polish
 
@@ -342,9 +342,12 @@ Goal: make the branch submission-ready.
 
 Implementation status: in progress. The architecture/retrieval decision is now
 documented, and public retrieval has been upgraded with local weighted lexical
-ranking plus bilingual query expansion. Versioned evidence, architecture media,
-and storyboard assets have been added; the remaining major item is recording the
-external demo video.
+ranking plus bilingual query expansion. Gemma 4 prompt, tool-call, structured
+output, and vision optimization decisions are documented in
+`docs/strategy/gemma-4-optimization.md`. Versioned evidence, architecture media,
+storyboard assets, and a curated 12-case Gemma representative suite have been
+added. The 12-case suite now passes 12/12 with local Gemma; the remaining major
+item is recording the external demo video.
 
 Tasks:
 

@@ -67,8 +67,28 @@ API. The application uses it in two stages:
    and asks for concise answers grounded in evidence.
 
 This matches the Gemma 4 design strengths documented by Google: local/edge
-deployment, native system prompts, long context, multilingual behavior,
-structured output, and function-calling style workflows.
+deployment, user/model prompt formatting, long context, multilingual behavior,
+structured output, vision input, and function-calling style workflows.
+
+The implementation was adjusted to better exploit Gemma 4 rather than treating
+it as a generic chat model. Planner instructions are embedded in the user turn
+to match Gemma's instruction-tuned prompt guidance. The parser accepts Gemma's
+documented `parameters` style, one-call JSON, multi-call JSON, direct JSON
+arrays, legacy `arguments`, and native `<|tool_call>` markers. The composer asks
+Gemma for structured JSON containing the answer plus a checklist, plan, message
+draft, and safety note; if that structure is invalid, deterministic templates
+preserve the same UI contract.
+
+The executor includes a narrow deterministic completion step for recovery-plan
+requests: if Gemma selects an authorized student snapshot but omits the
+`build_study_plan` follow-up, the app appends that tool call before execution.
+This keeps authorization and workflow reliability in Python without letting the
+model access any broader data surface.
+
+For document intake, image uploads can try a local Gemma vision transcription
+path before falling back to local OCR/text extraction. This follows the official
+visual prompting guidance pragmatically: Gemma is useful for image
+understanding, while precise OCR remains a local deterministic fallback.
 
 Local validation on April 24, 2026 used the Q4_K_M GGUF artifact from
 `ggml-org/gemma-4-E4B-it-GGUF` on an NVIDIA GeForce RTX 4070 Laptop GPU. The
@@ -77,8 +97,11 @@ and compute buffers, and generation-time `nvidia-smi` samples showed 86-92% GPU
 utilization with about 4.6 GB VRAM in use. The expanded offline regression
 suite now passes 181/181 cases, including public questions, authorized protected
 support, privacy denials, document intake, Portuguese prompts, and malicious
-notice text. A representative Gemma-enabled subset passed 3/3 across public
-information, authorized support, and privacy guardrail cases.
+notice text. The curated Gemma-enabled representative suite passed 12/12 with
+local Gemma through `--representative-gemma-suite`, covering 4 public
+information cases, 5 authorized support cases, 3 privacy guardrail cases, and
+Portuguese prompts. The local Gemma suite preserved 3/3 restricted-data denials
+with zero protected-evidence leaks.
 
 Concrete outputs for the video flow are versioned in
 `docs/submission/evidence/sample-outputs.md`, and the architecture/storyboard

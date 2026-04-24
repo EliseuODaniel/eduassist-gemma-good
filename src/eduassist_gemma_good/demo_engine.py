@@ -6,8 +6,9 @@ from .config import Settings, load_settings
 from .data_store import DemoDataStore
 from .model_client import (
     GemmaClient,
-    calls_from_model_json,
+    calls_from_model_text,
     composition_prompt,
+    parse_composition_json,
     parse_json_object,
     planner_prompt,
 )
@@ -42,7 +43,7 @@ class DemoEngine:
         detected_student_id = self.data_store.find_student_by_text(question)
         calls, planning_mode, safety_notes = self._plan(question, persona, detected_student_id)
         results = self.executor.execute_all(calls, persona)
-        answer, composition_mode = self._compose(question, persona, results)
+        answer, composition_mode, structured_output = self._compose(question, persona, results)
         evidence = tuple(item for result in results for item in result.evidence)
         access_decision = self._access_decision(results, evidence, question)
         runtime_mode: RuntimeMode = (
@@ -57,6 +58,7 @@ class DemoEngine:
             tool_results=results,
             evidence=evidence,
             safety_notes=tuple(safety_notes),
+            structured_output=structured_output,
         )
 
     def _plan(
@@ -72,14 +74,17 @@ class DemoEngine:
                 temperature=0.0,
             )
             if response is not None:
-                parsed = parse_json_object(response.text)
-                if parsed:
-                    calls = calls_from_model_json(parsed)
-                    if calls:
-                        notes = parsed.get("safety_notes", [])
-                        if not isinstance(notes, list):
-                            notes = []
-                        return calls, "gemma", tuple(str(note) for note in notes)
+                calls = calls_from_model_text(response.text)
+                if calls:
+                    parsed = parse_json_object(response.text) or {}
+                    notes = parsed.get("safety_notes", [])
+                    if not isinstance(notes, list):
+                        notes = []
+                    return (
+                        self._complete_model_plan(question, calls),
+                        "gemma",
+                        tuple(str(note) for note in notes),
+                    )
         fallback_note = (
             "Gemma planner unavailable or returned an invalid tool plan; "
             "deterministic router used.",
@@ -154,20 +159,62 @@ class DemoEngine:
 
         return (ToolCall("search_public_knowledge", {"query": question}),)
 
+    def _complete_model_plan(
+        self,
+        question: str,
+        calls: tuple[ToolCall, ...],
+    ) -> tuple[ToolCall, ...]:
+        call_names = [call.name for call in calls]
+        if "build_study_plan" in call_names or "get_student_snapshot" not in call_names:
+            return calls
+
+        planning_terms = {
+            "plan",
+            "study",
+            "plano",
+            "estudo",
+            "recover",
+            "recovery",
+            "recuperar",
+            "recuperacao",
+        }
+        if not (planning_terms & tokens(question)):
+            return calls
+
+        snapshot_call = next(call for call in calls if call.name == "get_student_snapshot")
+        student_id = snapshot_call.arguments.get("student_id")
+        if not isinstance(student_id, str) or not student_id:
+            return calls
+
+        return (
+            *calls,
+            ToolCall(
+                "build_study_plan",
+                {"student_id": student_id, "focus": "weekly academic recovery"},
+            ),
+        )
+
     def _compose(
         self,
         question: str,
         persona: Persona,
         results: Sequence[ToolResult],
-    ) -> tuple[str, RuntimeMode]:
+    ) -> tuple[str, RuntimeMode, dict]:
         if self.use_llm and self.settings.gemma_enable_composer:
             response = self.gemma.chat(
                 composition_prompt(question, persona, results),
                 max_tokens=420,
+                temperature=0.2,
             )
             if response is not None:
-                return response.text, "gemma"
-        return self._fallback_compose(results), "fallback"
+                parsed = parse_json_object(response.text)
+                if self.settings.gemma_enable_structured_composer and parsed:
+                    structured = parse_composition_json(parsed)
+                    if structured is not None:
+                        answer, structured_output = structured
+                        return answer, "gemma", structured_output
+                return response.text, "gemma", {}
+        return self._fallback_compose(results), "fallback", {}
 
     def _fallback_compose(self, results: Sequence[ToolResult]) -> str:
         denied = [result for result in results if result.status == "denied"]

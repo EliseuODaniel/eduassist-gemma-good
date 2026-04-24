@@ -45,6 +45,18 @@ execution. Gemma is used again as a grounded composer: it receives only validate
 tool results and produces the final answer from evidence. The model never gets
 direct database access.
 
+The Gemma integration follows the official documentation more closely than a
+plain chat wrapper. Planner prompts use a Gemma-oriented function-calling
+contract, the parser accepts `parameters`, one-call JSON, multi-call JSON, direct
+JSON arrays, legacy `arguments`, and native `<|tool_call>` markers, and the
+composer returns structured JSON for the answer, checklist, recovery plan,
+school message draft, and safety note. Image notice uploads can also attempt a
+local Gemma vision transcription path before falling back to local OCR/text
+extraction. For explicit recovery-plan requests, the executor deterministically
+adds `build_study_plan` when Gemma has already selected an authorized student
+snapshot but omitted the follow-up call, preserving a reliable product workflow
+without expanding model privileges.
+
 The app intentionally uses a lightweight custom planner-executor-composer loop
 instead of LangGraph or a specialist supervisor. That keeps the hackathon demo
 local, auditable, and easy to explain: Gemma plans and writes, while Python owns
@@ -68,7 +80,9 @@ consistently. Local validation on April 24, 2026 passed 181/181 offline cases,
 including 54/54 restricted-data denials with zero protected-evidence leaks. GPU
 validation on an NVIDIA GeForce RTX 4070 Laptop GPU confirmed llama.cpp
 offloaded 43/43 layers to CUDA, with generation-time GPU utilization observed at
-86-92%.
+86-92%. The curated 12-case `--representative-gemma-suite` also passed 12/12
+with local Gemma, including 3/3 restricted-data denials and zero protected
+evidence leaks.
 
 The main technical challenge was balancing model usefulness with privacy. A plain
 chatbot could easily over-answer or invent access. EduAssist Field Kit instead

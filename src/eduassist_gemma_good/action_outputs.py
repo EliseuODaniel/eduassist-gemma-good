@@ -15,6 +15,10 @@ class ActionOutput:
 
 
 def action_output_from_response(response: AssistantResponse) -> ActionOutput:
+    structured = _structured_output(response.structured_output)
+    if structured is not None:
+        return structured
+
     denied = next((result for result in response.tool_results if result.status == "denied"), None)
     if denied is not None:
         return _denial_output(denied)
@@ -142,4 +146,34 @@ def _denial_output(result: ToolResult) -> ActionOutput:
             "Please contact the school office through an authorized channel."
         ),
         safety_note=reason,
+    )
+
+
+def _structured_output(raw: dict) -> ActionOutput | None:
+    if not raw:
+        return None
+    action_output = raw.get("action_output", raw)
+    if not isinstance(action_output, dict):
+        return None
+    checklist = action_output.get("checklist", ())
+    plan = action_output.get("plan", ())
+    title = action_output.get("title")
+    message = action_output.get("message")
+    safety_note = action_output.get("safety_note")
+    if (
+        not isinstance(title, str)
+        or not isinstance(message, str)
+        or not isinstance(safety_note, str)
+    ):
+        return None
+    if not isinstance(checklist, list) or not all(isinstance(item, str) for item in checklist):
+        return None
+    if not isinstance(plan, list) or not all(isinstance(item, str) for item in plan):
+        return None
+    return ActionOutput(
+        title=title,
+        checklist=tuple(checklist),
+        plan=tuple(plan),
+        message=message,
+        safety_note=safety_note,
     )

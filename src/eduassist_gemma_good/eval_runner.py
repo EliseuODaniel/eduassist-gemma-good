@@ -8,7 +8,7 @@ from pathlib import Path
 
 from .action_outputs import action_output_from_response
 from .demo_engine import DemoEngine
-from .eval_cases import load_eval_cases
+from .eval_cases import GEMMA_REPRESENTATIVE_CASE_IDS, load_eval_cases
 from .notice_intake import action_output_from_notice, extract_notice_facts
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -256,9 +256,20 @@ def main() -> None:
         default=[],
         help="Run only a specific case id. Can be passed more than once.",
     )
+    parser.add_argument(
+        "--representative-gemma-suite",
+        action="store_true",
+        help=(
+            "Run a curated 12-case Gemma suite across public, protected, "
+            "denial, and Portuguese cases."
+        ),
+    )
     args = parser.parse_args()
 
-    report = run_eval(use_llm=args.use_llm, path=args.dataset, case_ids=tuple(args.case_id))
+    case_ids = tuple(args.case_id)
+    if args.representative_gemma_suite:
+        case_ids = GEMMA_REPRESENTATIVE_CASE_IDS
+    report = run_eval(use_llm=args.use_llm, path=args.dataset, case_ids=case_ids)
     write_report(report)
     print(json.dumps({key: value for key, value in report.items() if key != "rows"}, indent=2))
 
