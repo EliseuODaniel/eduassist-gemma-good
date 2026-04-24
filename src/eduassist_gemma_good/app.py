@@ -13,6 +13,7 @@ from eduassist_gemma_good.demo_engine import DemoEngine
 from eduassist_gemma_good.question_bank import (
     QUESTION_GROUPS,
     PreparedQuestion,
+    count_questions_by_group,
     filter_questions,
     load_prepared_questions,
     question_option_label,
@@ -109,6 +110,16 @@ def selected_question_for_id(
     return next(question for question in questions if question.id == question_id)
 
 
+def render_question_coverage(questions: tuple[PreparedQuestion, ...]) -> None:
+    counts = count_questions_by_group(questions)
+    st.header("Coverage")
+    st.metric("Prepared cases", counts["all_cases"])
+    public_col, allowed_col = st.columns(2)
+    public_col.metric("Public", counts["public_information"])
+    allowed_col.metric("Allowed", counts["authorized_support"])
+    st.metric("Denied", counts["privacy_guardrails"])
+
+
 def render_runtime(settings: Settings, use_llm: bool) -> None:
     health = gemma_health(settings.gemma_base_url) if use_llm else {"status": "off", "detail": ""}
     if health["status"] == "online":
@@ -186,6 +197,9 @@ def main() -> None:
 
     engine = DemoEngine(settings, use_llm=use_llm)
     prepared_questions = cached_prepared_questions(str(settings.data_dir))
+
+    with st.sidebar:
+        render_question_coverage(prepared_questions)
 
     group_key = st.selectbox(
         "Demo scenario",

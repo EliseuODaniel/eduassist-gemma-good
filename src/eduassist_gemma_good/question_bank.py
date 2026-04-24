@@ -78,5 +78,15 @@ def filter_questions(
     return tuple(question for question in questions if question.group_key == group_key)
 
 
+def count_questions_by_group(
+    questions: tuple[PreparedQuestion, ...],
+) -> dict[str, int]:
+    counts = dict.fromkeys(QUESTION_GROUPS, 0)
+    for question in questions:
+        counts[question.group_key] += 1
+        counts["all_cases"] += 1
+    return counts
+
+
 def question_option_label(question: PreparedQuestion, persona_label: str) -> str:
     return f"{persona_label} | {question.question}"

@@ -118,7 +118,8 @@ Current local validation:
 - `data/demo/protected/` - synthetic protected student snapshots.
 - `data/demo/evals/` - small evaluation set for demo regression checks.
 - `infra/compose/` - local Gemma 4 E4B service and optional demo-web service.
-- `docs/submission/` - hackathon writeup, demo script, and evaluation plan.
+- `docs/submission/` - hackathon writeup, demo script, evaluation plan, and
+  implementation status.
 
 ## Safety posture
 
