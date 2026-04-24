@@ -32,6 +32,7 @@ from eduassist_gemma_good.question_bank import (
     question_option_label,
 )
 from eduassist_gemma_good.schema import PERSONAS, AssistantResponse
+from eduassist_gemma_good.tool_registry import tool_definition
 
 ACCESS_LABELS = {
     "public": "Public",
@@ -181,15 +182,25 @@ def render_trace(response: AssistantResponse) -> None:
     st.subheader("Tool Trace")
     for result in response.tool_results:
         band_class = "ea-ok" if result.status == "ok" else "ea-warn"
+        definition = tool_definition(result.call.name)
+        audit_label = definition.audit_label if definition else result.call.name
+        access_policy = definition.access_policy if definition else "unregistered"
+        output_contract = definition.output_contract if definition else "Unregistered tool result"
         tool_name = escape_html(result.call.name)
+        audit_label_html = escape_html(audit_label)
+        access_policy_html = escape_html(access_policy)
+        output_contract_html = escape_html(output_contract)
         tool_status = escape_html(result.status)
         proposed_by = escape_html(result.call.proposed_by)
         arguments = escape_html(json.dumps(result.call.arguments, ensure_ascii=False))
         st.markdown(
             f"""
             <div class="ea-band">
-                <strong>{tool_name}</strong><br />
+                <strong>{audit_label_html}</strong><br />
                 <span class="ea-pill {band_class}">status: {tool_status}</span>
+                <span class="ea-pill">tool: {tool_name}</span>
+                <span class="ea-pill">policy: {access_policy_html}</span>
+                <span class="ea-pill">output: {output_contract_html}</span>
                 <span class="ea-pill">planned by: {proposed_by}</span>
                 <span class="ea-pill">arguments: {arguments}</span>
             </div>

@@ -10,7 +10,7 @@ from openai import OpenAI
 
 from .config import Settings
 from .schema import Persona, RuntimeMode, ToolCall, ToolResult
-from .tools import ALLOWED_TOOL_NAMES, tool_schemas
+from .tool_registry import is_planner_tool, tool_schemas
 
 JSON_OBJECT_RE = re.compile(r"\{.*\}", re.DOTALL)
 
@@ -154,7 +154,11 @@ def calls_from_model_json(parsed: dict[str, Any]) -> tuple[ToolCall, ...]:
             continue
         name = raw_call.get("name")
         arguments = raw_call.get("arguments", {})
-        if name not in ALLOWED_TOOL_NAMES or not isinstance(arguments, dict):
+        if (
+            not isinstance(name, str)
+            or not is_planner_tool(name)
+            or not isinstance(arguments, dict)
+        ):
             continue
         calls.append(ToolCall(name=name, arguments=arguments, proposed_by="gemma"))
     return tuple(calls)

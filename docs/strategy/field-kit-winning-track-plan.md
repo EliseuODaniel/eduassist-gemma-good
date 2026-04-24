@@ -1,6 +1,6 @@
 # EduAssist Field Kit Winning Track Plan
 
-Status: Phase 2 minimum viable document intake implemented, Phase 3 ready.
+Status: Phase 3 typed tool registry implemented, Phase 4 ready.
 
 Branch: `codex/field-kit-winning-track`.
 
@@ -294,18 +294,23 @@ Exit criteria:
 
 Goal: make the agent architecture more serious and auditable.
 
+Implementation status: complete on this branch for the active runtime tools.
+The notice/document tools are registered as planned contracts and remain
+disabled for Gemma planning until the workflow is promoted into the agent
+executor.
+
 Tasks:
 
-- Create typed tool registry.
-- Generate planner schemas from registry.
-- Validate all tool calls through the registry.
-- Keep access policy deterministic.
-- Render tool descriptions and policy decisions in the UI trace.
+- Create typed tool registry. Done.
+- Generate planner schemas from registry. Done.
+- Validate all tool calls through the registry. Done.
+- Keep access policy deterministic. Done.
+- Render tool descriptions and policy decisions in the UI trace. Done.
 
 Exit criteria:
 
-- All tools have typed input/output contracts.
-- All tool calls are auditable from one registry.
+- All tools have typed input/output contracts. Done.
+- All tool calls are auditable from one registry. Done.
 
 ### Phase 4: Evaluation Upgrade
 
