@@ -57,6 +57,12 @@ CONTACT_TERMS = (
     "secretaria",
     "canal",
 )
+EMBEDDED_NOTICE_TEXT_KEYS = (
+    "eduassist_notice_text",
+    "notice_text",
+    "ocr_text",
+    "description",
+)
 
 
 @dataclass(frozen=True)
@@ -143,15 +149,35 @@ def _extract_pdf_text(content: bytes) -> str:
 
 def _extract_image_text(content: bytes) -> str:
     try:
-        import pytesseract
         from PIL import Image
+    except ImportError as exc:
+        raise ValueError(
+            "Image support requires Pillow. Use PDF/TXT/MD for this demo path, "
+            "or install local image support."
+        ) from exc
+
+    image = Image.open(BytesIO(content))
+    embedded_text = _embedded_image_text(image)
+    if embedded_text:
+        return embedded_text
+
+    try:
+        import pytesseract
     except ImportError as exc:
         raise ValueError(
             "Image OCR is optional and is not installed locally. "
             "Use PDF/TXT/MD for this demo path, or install local OCR support."
         ) from exc
-    image = Image.open(BytesIO(content))
     return str(pytesseract.image_to_string(image)).strip()
+
+
+def _embedded_image_text(image) -> str:
+    info = getattr(image, "info", {})
+    for key in EMBEDDED_NOTICE_TEXT_KEYS:
+        value = info.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return ""
 
 
 def _clean_text(text: str) -> str:

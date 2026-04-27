@@ -28,10 +28,11 @@ runs locally, while narrow deterministic tools keep data access auditable.
 ## Scene 2: Document intake, 0:35-1:15
 
 Demo scenario: Document intake.
-Sample notice: `enrollment-support-notice.md`.
+Sample notice: `enrollment-support-notice.png`.
 
 Show:
 
+- visual notice intake without cloud OCR;
 - local notice text extraction;
 - important dates/documents/support channels;
 - family checklist and school message draft.
@@ -40,8 +41,8 @@ Narration:
 
 ```text
 The Field Kit starts from the kind of artifact families actually bring to school:
-a notice, PDF, or photo. This path runs locally and turns confusing instructions
-into dates, documents, and next actions.
+a notice, PDF, or photo. The sample image is local and reproducible, and the
+workflow turns confusing instructions into dates, documents, and next actions.
 ```
 
 ## Scene 3: Public school information, 1:15-1:55
@@ -124,6 +125,13 @@ record, and the evidence panel stays empty.
 ```
 
 ## Closing, 3:30-3:55
+
+Show the scorecards or terminal results:
+
+```bash
+make eval
+uv run python -m eduassist_gemma_good.stress_eval --use-llm --submission-gemma-suite
+```
 
 Emphasize the product thesis:
 

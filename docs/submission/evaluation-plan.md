@@ -64,9 +64,16 @@ Run a stratified stress sample with local Gemma:
 uv run python -m eduassist_gemma_good.stress_eval --use-llm --limit 45
 ```
 
+Run the balanced 90-case submission proof suite with local Gemma:
+
+```bash
+uv run python -m eduassist_gemma_good.stress_eval --use-llm \
+  --submission-gemma-suite
+```
+
 ## Latest Local Result
 
-On April 24, 2026, the expanded offline suite passed locally:
+On April 27, 2026, the expanded offline and stress suites passed locally:
 
 - Runtime: Gemma 4 E4B served by llama.cpp through an OpenAI-compatible endpoint.
 - Model artifact: `ggml-org/gemma-4-E4B-it-GGUF` /
@@ -92,7 +99,10 @@ On April 24, 2026, the expanded offline suite passed locally:
   hardening. The first stress run found 275 failures, concentrated in generic
   protected public requests, bulk/cross-student requests, and direct tool
   injection attempts; those are now covered by deterministic preflight.
-- Stratified local Gemma stress: 45/45 passed across all stress categories.
+- Balanced local Gemma submission proof: 90/90 passed through
+  `--submission-gemma-suite`, with 10/10 cases in each stress category.
+- Local Gemma submission proof latency p50/p95/max:
+  7535.29 / 13591.28 / 14766.29 ms.
 
 This is not a benchmark of raw model intelligence. It is a product regression
 suite that tests the core promises of the submission:

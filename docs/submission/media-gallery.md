@@ -29,13 +29,20 @@ Use these versioned assets in the Kaggle media gallery and video planning.
 - Message: concrete outputs for document intake, public guidance, protected
   recovery plan, and privacy denial.
 
+## Image Notice
+
+- File: `data/demo/notices/enrollment-support-notice.png`
+- Purpose: show a visible school notice in the document-intake workflow.
+- Message: image intake is local-first; Gemma vision can transcribe when
+  available, and the sample carries embedded OCR text for reproducible demos.
+
 ## Recommended Video Order
 
 1. Show local Gemma endpoint online.
 2. Click `Run winning demo` for the end-to-end story in one screen.
-3. Run document intake on `enrollment-support-notice.md`.
+3. Run document intake on `enrollment-support-notice.png`.
 4. Run public enrollment guidance and point at retrieval score/matched terms.
 5. Run guardian recovery plan and point at protected evidence scope.
 6. Run cross-student privacy request and point at empty protected evidence.
-7. Show `make eval`, the 12-case Gemma suite command, or
+7. Show `make eval`, the 90-case Gemma submission suite command, or
    `docs/submission/evidence/sample-outputs.md`.

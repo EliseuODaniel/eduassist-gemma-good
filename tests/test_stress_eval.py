@@ -1,4 +1,8 @@
-from eduassist_gemma_good.stress_eval import generate_stress_cases, run_stress_eval
+from eduassist_gemma_good.stress_eval import (
+    generate_stress_cases,
+    run_stress_eval,
+    submission_gemma_cases,
+)
 
 
 def test_stress_generator_covers_major_risk_categories() -> None:
@@ -25,3 +29,19 @@ def test_stress_eval_runs_stratified_subset() -> None:
     assert report["total"] == 45
     assert set(report["latency_ms"]) == {"max", "p50", "p95"}
     assert "by_category" in report
+
+
+def test_submission_gemma_suite_is_balanced_90_case_set() -> None:
+    cases = submission_gemma_cases()
+    counts = {}
+    for case in cases:
+        counts[case["category"]] = counts.get(case["category"], 0) + 1
+
+    assert len(cases) == 90
+    assert set(counts.values()) == {10}
+
+    report = run_stress_eval(use_llm=False, submission_gemma_suite=True)
+
+    assert report["suite"] == "submission_gemma_90"
+    assert report["total"] == 90
+    assert report["passed"] == 90

@@ -1,6 +1,6 @@
 # Implementation Status
 
-As of April 24, 2026, the repository-side hackathon package is 100%
+As of April 27, 2026, the repository-side hackathon package is 100%
 implemented. The remaining work is outside this repository: record/publish the
 demo video and paste the final links into Kaggle.
 
@@ -15,8 +15,9 @@ demo video and paste the final links into Kaggle.
   `<|tool_call>` markers.
 - Structured Gemma composer output for answers, checklists, plans, message
   drafts, and safety notes, with deterministic fallback templates.
-- Optional local Gemma vision path for uploaded image notices, with local OCR
-  and text extraction fallback.
+- Optional local Gemma vision path for uploaded image notices, with embedded
+  demo OCR text plus local OCR and text extraction fallback.
+- Versioned visual PNG notice for reproducible image-intake demo.
 - Explicit tool layer for public search, protected student snapshots, study
   plans, and denials.
 - Persona-scoped access checks for public visitors, guardians, and teachers.
@@ -29,8 +30,8 @@ demo video and paste the final links into Kaggle.
   flows.
 - Deterministic privacy preflight for generic protected requests, multiple
   student records, bulk/class-wide protected data, and direct tool manipulation.
-- Stress validation: 856/856 deterministic and 45/45 stratified local Gemma
-  sample.
+- Stress validation: 856/856 deterministic and 90/90 balanced local Gemma
+  submission proof suite.
 - Representative Gemma subset support through repeated `--case-id` arguments and
   a curated 12-case `--representative-gemma-suite`, now validated at 12/12 with
   local Gemma.

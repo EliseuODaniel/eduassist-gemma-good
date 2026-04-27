@@ -86,11 +86,13 @@ This keeps authorization and workflow reliability in Python without letting the
 model access any broader data surface.
 
 For document intake, image uploads can try a local Gemma vision transcription
-path before falling back to local OCR/text extraction. This follows the official
+path before falling back to embedded demo OCR text or local OCR/text extraction.
+The repository includes a visual PNG school notice so the video can demonstrate
+image intake reproducibly without a cloud service. This follows the official
 visual prompting guidance pragmatically: Gemma is useful for image
 understanding, while precise OCR remains a local deterministic fallback.
 
-Local validation on April 24, 2026 used the Q4_K_M GGUF artifact from
+Local validation on April 27, 2026 used the Q4_K_M GGUF artifact from
 `ggml-org/gemma-4-E4B-it-GGUF` on an NVIDIA GeForce RTX 4070 Laptop GPU. The
 llama.cpp runtime reported `offloaded 43/43 layers to GPU`, `CUDA0` model, KV,
 and compute buffers, and generation-time `nvidia-smi` samples showed 86-92% GPU
@@ -109,8 +111,9 @@ requests, direct tool-injection attempts, Portuguese prompts, and document
 intake. The first run found 275 failures in generic public protected requests,
 bulk protected requests, and tool-injection language. A deterministic privacy
 preflight now catches those before Gemma or fallback planning; the current
-stress result is 856/856 deterministic and 45/45 on a stratified local Gemma
-sample.
+stress result is 856/856 deterministic. The balanced 90-case local Gemma
+submission proof suite passed 90/90 with 10 cases in every stress category and
+no failure clusters.
 
 Concrete outputs for the video flow are versioned in
 `docs/submission/evidence/sample-outputs.md`, and the architecture/storyboard

@@ -52,10 +52,11 @@ JSON arrays, legacy `arguments`, and native `<|tool_call>` markers, and the
 composer returns structured JSON for the answer, checklist, recovery plan,
 school message draft, and safety note. Image notice uploads can also attempt a
 local Gemma vision transcription path before falling back to local OCR/text
-extraction. For explicit recovery-plan requests, the executor deterministically
-adds `build_study_plan` when Gemma has already selected an authorized student
-snapshot but omitted the follow-up call, preserving a reliable product workflow
-without expanding model privileges.
+extraction. The repo includes a visual PNG school notice for a reproducible
+image-intake demo. For explicit recovery-plan requests, the executor
+deterministically adds `build_study_plan` when Gemma has already selected an
+authorized student snapshot but omitted the follow-up call, preserving a
+reliable product workflow without expanding model privileges.
 
 The app intentionally uses a lightweight custom planner-executor-composer loop
 instead of LangGraph or a specialist supervisor. That keeps the hackathon demo
@@ -76,7 +77,7 @@ protected student snapshots, and an expanded 181-case regression set that covers
 public information, authorized protected support, restricted denials, document
 intake, Portuguese prompts, and malicious notice text. The Streamlit app uses
 the question subset as a prepared scenario picker, so the demo can be replayed
-consistently. Local validation on April 24, 2026 passed 181/181 offline cases,
+consistently. Local validation on April 27, 2026 passed 181/181 offline cases,
 including 54/54 restricted-data denials with zero protected-evidence leaks. GPU
 validation on an NVIDIA GeForce RTX 4070 Laptop GPU confirmed llama.cpp
 offloaded 43/43 layers to CUDA, with generation-time GPU utilization observed at
@@ -87,8 +88,9 @@ evidence leaks.
 After an adversarial 856-case stress battery exposed weaknesses in generic
 protected requests, class-wide private exports, and direct tool-injection
 phrasing, the app added a deterministic privacy preflight before Gemma planning.
-The current stress result is 856/856 in deterministic mode and 45/45 in a
-stratified local Gemma sample.
+The current stress result is 856/856 in deterministic mode, and the balanced
+90-case local Gemma submission proof suite passed 90/90 with no failure
+clusters.
 
 The main technical challenge was balancing model usefulness with privacy. A plain
 chatbot could easily over-answer or invent access. EduAssist Field Kit instead
@@ -107,11 +109,14 @@ cloud dependency.
 - Start the local model with `make llm-up`.
 - Start the app with `make app`.
 - Show the sidebar: Gemma endpoint online, model id, prepared-case coverage.
-- Show the document intake workflow with `enrollment-support-notice.md`.
+- Click `Run winning demo` and show the scorecards.
+- Show the document intake workflow with `enrollment-support-notice.png` or
+  `enrollment-support-notice.md`.
 - Run the public enrollment question.
 - Run the authorized recovery-plan question.
 - Run the privacy denial question.
-- Show `make eval`, the generated evaluation artifacts, or the evidence pack.
+- Show `make eval`, `--submission-gemma-suite`, the generated evaluation
+  artifacts, or the evidence pack.
 
 ## Final Pre-submission Checklist
 

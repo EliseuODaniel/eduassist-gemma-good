@@ -52,7 +52,7 @@ def install_theme() -> None:
         """
         <style>
         .block-container {
-            padding-top: 2rem;
+            padding-top: 1.45rem;
             padding-bottom: 2rem;
             max-width: 1320px;
         }
@@ -69,6 +69,47 @@ def install_theme() -> None:
             margin-bottom: 0.75rem;
         }
         .ea-band strong {
+            color: #0f172a;
+        }
+        .ea-brief {
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 1rem 1.1rem;
+            background: #eff6ff;
+            margin: 0.75rem 0 1rem 0;
+        }
+        .ea-brief h3 {
+            margin: 0 0 0.35rem 0;
+            color: #0f172a;
+        }
+        .ea-brief p {
+            margin: 0;
+            color: #334155;
+        }
+        .ea-score {
+            border: 1px solid #dbe3ea;
+            border-radius: 8px;
+            padding: 0.72rem 0.8rem;
+            min-height: 5.8rem;
+            background: #ffffff;
+        }
+        .ea-score strong {
+            color: #0f172a;
+            display: block;
+            font-size: 1.18rem;
+            line-height: 1.25;
+        }
+        .ea-score span {
+            color: #64748b;
+            font-size: 0.86rem;
+        }
+        .ea-step {
+            border-left: 4px solid #2563eb;
+            padding: 0.72rem 0.85rem;
+            background: #f8fafc;
+            margin: 0.75rem 0;
+        }
+        .ea-step strong {
             color: #0f172a;
         }
         .ea-workflow {
@@ -107,6 +148,15 @@ def install_theme() -> None:
             background: #f8fafc;
             color: #0f172a;
             margin-top: 0.5rem;
+        }
+        .ea-export {
+            border: 1px dashed #94a3b8;
+            border-radius: 8px;
+            padding: 0.7rem 0.85rem;
+            background: #ffffff;
+            color: #334155;
+            white-space: pre-wrap;
+            font-size: 0.92rem;
         }
         </style>
         """,
@@ -151,6 +201,55 @@ def render_question_coverage(questions: tuple[PreparedQuestion, ...]) -> None:
     public_col.metric("Public", counts["public_information"])
     allowed_col.metric("Allowed", counts["authorized_support"])
     st.metric("Denied", counts["privacy_guardrails"])
+
+
+def render_submission_brief() -> None:
+    st.markdown(
+        """
+        <div class="ea-brief">
+            <h3>Private offline school assistance with Gemma 4</h3>
+            <p>
+                One reproducible workflow for judges: local notice intake, public
+                evidence retrieval, authorized student support, and visible privacy
+                denial before protected data can leak.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_scoreboard() -> None:
+    metrics = (
+        ("181/181", "offline regression"),
+        ("856/856", "adversarial stress"),
+        ("12/12", "curated Gemma suite"),
+        ("90/90", "Gemma submission suite"),
+    )
+    columns = st.columns(4)
+    for column, (value, label) in zip(columns, metrics, strict=True):
+        with column:
+            st.markdown(
+                f"""
+                <div class="ea-score">
+                    <strong>{escape_html(value)}</strong>
+                    <span>{escape_html(label)}</span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+
+def render_step(label: str, body: str) -> None:
+    st.markdown(
+        f"""
+        <div class="ea-step">
+            <strong>{escape_html(label)}</strong><br />
+            {escape_html(body)}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def render_workflow_card(workflow: FieldKitWorkflow, case_count: int) -> None:
@@ -263,7 +362,7 @@ def _retrieval_metadata_html(payload: dict) -> str:
     return "<br />" + "".join(rows)
 
 
-def render_action_output(output: ActionOutput) -> None:
+def render_action_output(output: ActionOutput, *, show_printable: bool = True) -> None:
     st.subheader("Action Output")
     st.markdown(f"**{output.title}**")
     checklist_col, message_col = st.columns([0.95, 1.05], gap="medium")
@@ -286,6 +385,30 @@ def render_action_output(output: ActionOutput) -> None:
             unsafe_allow_html=True,
         )
         st.caption(output.safety_note)
+    export_text = "\n".join(
+        [
+            output.title,
+            "",
+            "Checklist:",
+            *(f"- {item}" for item in output.checklist),
+            *(["", "Plan:", *(f"- {item}" for item in output.plan)] if output.plan else []),
+            "",
+            "Message draft:",
+            output.message,
+            "",
+            f"Safety note: {output.safety_note}",
+        ]
+    )
+    if show_printable:
+        with st.expander("Printable field-kit output"):
+            st.markdown(
+                f"""
+                <div class="ea-export">
+                    {escape_html(export_text)}
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
 
 def render_notice_facts(facts: NoticeFacts) -> None:
@@ -377,14 +500,27 @@ def render_winning_demo(engine: DemoEngine, settings: Settings) -> None:
         "authorized support, and privacy denial.</p>",
         unsafe_allow_html=True,
     )
+    render_scoreboard()
 
-    notice_path = settings.data_dir / "notices" / "enrollment-support-notice.md"
+    image_notice_path = settings.data_dir / "notices" / "enrollment-support-notice.png"
+    notice_path = (
+        image_notice_path
+        if image_notice_path.exists()
+        else settings.data_dir / "notices" / "enrollment-support-notice.md"
+    )
     if notice_path.exists():
         with st.expander("1. Document intake", expanded=True):
+            render_step(
+                "Field worker starts from a school notice",
+                "The app turns a local file into dates, documents, support channels, "
+                "and a family checklist.",
+            )
+            if notice_path.suffix.lower() in IMAGE_NOTICE_SUFFIXES:
+                st.image(str(notice_path), caption=notice_path.name, width="stretch")
             notice_text = extract_notice_text(notice_path.name, notice_path.read_bytes())
             facts = extract_notice_facts(notice_text, notice_path.name)
             render_notice_facts(facts)
-            render_action_output(action_output_from_notice(facts))
+            render_action_output(action_output_from_notice(facts), show_printable=False)
 
     demo_cases = (
         (
@@ -405,6 +541,23 @@ def render_winning_demo(engine: DemoEngine, settings: Settings) -> None:
     )
     for title, question, persona_key in demo_cases:
         with st.expander(title, expanded=True):
+            if persona_key == "public":
+                render_step(
+                    "Public guidance is grounded",
+                    "Gemma plans a narrow public search and the UI shows ranked evidence.",
+                )
+            elif "Privacy" in title:
+                render_step(
+                    "Unsafe access is blocked",
+                    "The deterministic policy layer denies the request before protected "
+                    "evidence is exposed.",
+                )
+            else:
+                render_step(
+                    "Authorized support becomes action",
+                    "A scoped protected snapshot feeds a short recovery plan and school "
+                    "message draft.",
+                )
             response = engine.answer(question, persona_key)
             st.markdown(f"**Persona:** {escape_html(response.persona.label)}")
             st.markdown(f"**Question:** {escape_html(question)}")
@@ -413,7 +566,7 @@ def render_winning_demo(engine: DemoEngine, settings: Settings) -> None:
             metrics[0].metric("Access", ACCESS_LABELS[response.access_decision])
             metrics[1].metric("Runtime", response.runtime_mode.title())
             metrics[2].metric("Tools", str(len(response.tool_results)))
-            render_action_output(action_output_from_response(response))
+            render_action_output(action_output_from_response(response), show_printable=False)
             render_trace(response)
 
 
@@ -443,6 +596,8 @@ def main() -> None:
         '<p class="ea-caption">Offline-first school service kit powered by local Gemma 4</p>',
         unsafe_allow_html=True,
     )
+    render_submission_brief()
+    render_scoreboard()
 
     with st.sidebar:
         st.header("Runtime")
@@ -450,13 +605,31 @@ def main() -> None:
         render_runtime(settings, use_llm)
         st.caption(settings.gemma_base_url)
         st.caption(settings.gemma_model)
-        run_winning_demo = st.button("Run winning demo", width="stretch")
+        run_winning_demo = st.button(
+            "Run winning demo",
+            type="primary",
+            width="stretch",
+            key="sidebar_winning_demo",
+        )
 
     engine = DemoEngine(settings, use_llm=use_llm)
     prepared_questions = cached_prepared_questions(str(settings.data_dir))
 
     with st.sidebar:
         render_question_coverage(prepared_questions)
+
+    demo_col, eval_col = st.columns([0.72, 0.28], gap="medium")
+    with demo_col:
+        run_winning_demo_main = st.button(
+            "Run winning demo",
+            type="primary",
+            width="stretch",
+            key="main_winning_demo",
+        )
+    with eval_col:
+        st.caption("Use this first for the video story.")
+        st.caption("Then show stress and eval metrics.")
+    run_winning_demo = run_winning_demo or run_winning_demo_main
 
     if run_winning_demo:
         render_winning_demo(engine, settings)

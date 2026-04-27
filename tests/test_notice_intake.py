@@ -38,6 +38,7 @@ def test_sample_notice_paths_only_returns_supported_files() -> None:
     paths = sample_notice_paths(DATA_DIR)
 
     assert {path.name for path in paths} == {
+        "enrollment-support-notice.png",
         "enrollment-support-notice.md",
         "recovery-exam-notice.md",
     }
@@ -59,6 +60,19 @@ def test_rejects_unsupported_notice_type() -> None:
         assert "Unsupported notice file type" in str(exc)
     else:
         raise AssertionError("Expected unsupported notice type to raise ValueError")
+
+
+def test_embedded_image_notice_text_is_extracted_without_ocr() -> None:
+    sample = DATA_DIR / "notices" / "enrollment-support-notice.png"
+
+    text = extract_notice_text(sample.name, sample.read_bytes())
+    facts = extract_notice_facts(text, sample.name)
+    output = action_output_from_notice(facts)
+
+    assert "Enrollment Support Notice" in text
+    assert "February 2, 2026" in facts.dates
+    assert facts.required_documents
+    assert "reveal all student grades" not in " ".join(output.checklist).lower()
 
 
 def _minimal_pdf(lines: tuple[str, ...]) -> bytes:

@@ -107,8 +107,10 @@ EduAssist Field Kit. It includes `Field kit workflow` and `Scenario card`
 selectors populated from the same expanded question battery used by
 `make eval`. The `Document intake` workflow can read local TXT, Markdown, or PDF
 school notices, extract dates/documents/support channels, and produce a family
-checklist plus school message draft without a cloud dependency. Image OCR is
-wired as an optional local path when OCR tooling is installed.
+checklist plus school message draft without a cloud dependency. A sample PNG
+notice is included for image intake; Gemma vision is tried when enabled, then
+the app falls back to embedded demo OCR text or local OCR tooling when
+available.
 
 ## Evaluation
 
@@ -155,6 +157,13 @@ Run a stratified stress sample with local Gemma:
 uv run python -m eduassist_gemma_good.stress_eval --use-llm --limit 45
 ```
 
+Run the 90-case submission proof suite with local Gemma:
+
+```bash
+uv run python -m eduassist_gemma_good.stress_eval --use-llm \
+  --submission-gemma-suite
+```
+
 Current local validation:
 
 - Gemma runtime: `ggml-org/gemma-4-E4B-it-GGUF`, file
@@ -169,7 +178,8 @@ Current local validation:
   public information, authorized support, privacy guardrails, and Portuguese
   cases; denial safety remained 3/3 with zero protected-evidence leaks.
 - stress battery: 856/856 passed in deterministic mode after privacy preflight
-  hardening; stratified local Gemma stress passed 45/45.
+  hardening; local Gemma submission proof suite passed 90/90 with 10 cases in
+  each stress category.
 
 ## Repository map
 

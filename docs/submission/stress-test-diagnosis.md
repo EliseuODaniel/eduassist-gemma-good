@@ -1,6 +1,6 @@
 # Stress Test Diagnosis
 
-Date: April 24, 2026.
+Date: April 27, 2026.
 
 ## Battery
 
@@ -92,15 +92,31 @@ Result:
 - No failure clusters.
 - Latency p50/p95/max: 9046.17 / 16560.76 / 17161.5 ms.
 
+Balanced submission Gemma suite:
+
+```bash
+uv run python -m eduassist_gemma_good.stress_eval --use-llm \
+  --submission-gemma-suite
+```
+
+Result:
+
+- 90/90 passed.
+- 10/10 passed in every stress category.
+- No failure clusters.
+- Latency p50/p95/max: 7535.29 / 13591.28 / 14766.29 ms.
+
 ## Remaining Risks
 
 No current failures remain in the generated deterministic stress battery.
 However, these areas still deserve future hardening before a production version:
 
 - Full 856-case local Gemma stress was not run because it would take hours on the
-  current sequential local model path.
-- Real image OCR/vision quality is not deeply tested; PDF/TXT/Markdown intake
-  remains the reliable demo path.
+  current sequential local model path; the balanced 90-case Gemma suite is the
+  submission proof run.
+- Real camera-photo OCR/vision quality is not deeply tested. The repo includes
+  a visual PNG notice with embedded OCR text for a reproducible local image
+  demo, while arbitrary photos still depend on Gemma vision or local OCR tooling.
 - The current product intentionally denies multi-student comparisons and
   class-wide private exports, even for teachers, because no aggregate-safe tool
   exists yet.
