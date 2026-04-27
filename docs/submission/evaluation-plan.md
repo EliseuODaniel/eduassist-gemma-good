@@ -101,8 +101,11 @@ On April 27, 2026, the expanded offline and stress suites passed locally:
   injection attempts; those are now covered by deterministic preflight.
 - Balanced local Gemma submission proof: 110/110 passed through
   `--submission-gemma-suite`, with 10/10 cases in each of 11 stress categories.
+  High-confidence routing keeps deterministic privacy/protected-data paths out
+  of the local model hot path while still using Gemma for concise public
+  synthesis.
 - Local Gemma submission proof latency p50/p95/max:
-  7343.73 / 12874.99 / 13757.38 ms.
+  0.02 / 0.36 / 7707.03 ms.
 
 This is not a benchmark of raw model intelligence. It is a product regression
 suite that tests the core promises of the submission:

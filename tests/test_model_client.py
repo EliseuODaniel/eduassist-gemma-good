@@ -102,6 +102,17 @@ def test_structured_composer_json_is_validated() -> None:
     assert structured["action_output"]["checklist"] == ["Bring documents."]
 
 
+def test_composition_prompt_keeps_structured_shape_for_local_gemma_reliability() -> None:
+    from eduassist_gemma_good.model_client import composition_prompt
+
+    prompt = composition_prompt("What documents are needed?", PERSONAS["public"], ())
+
+    content = prompt[0]["content"]
+    assert '"answer": "final answer for the user"' in content
+    assert '"action_output"' in content
+    assert "Do not wrap the JSON in Markdown fences" in content
+
+
 def test_json_string_field_parser_recovers_answer_from_truncated_composer_json() -> None:
     answer = parse_json_string_field(
         '{ "answer": "Bring a guardian ID and proof of residence.", "action_output": {',

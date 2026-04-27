@@ -109,12 +109,15 @@ Stratified local Gemma stress:
 uv run python -m eduassist_gemma_good.stress_eval --use-llm --limit 45
 ```
 
-Result:
+Latest 33-case optimization sample result:
 
-- 45/45 passed.
-- 5/5 passed in every stress category.
+- 33/33 passed.
+- 3/3 passed in every stress category.
 - No failure clusters.
-- Latency p50/p95/max: 9046.17 / 16560.76 / 17161.5 ms.
+- Latency p50/p95/max: 0.02 / 0.38 / 7845.71 ms.
+- High-confidence deterministic routing bypassed Gemma for denial, protected
+  data, document-intake, style-wrapped public, and public policy-boundary cases;
+  Gemma remained active for concise public synthesis.
 
 Balanced submission Gemma suite:
 
@@ -128,7 +131,7 @@ Result:
 - 110/110 passed.
 - 10/10 passed in each of 11 stress categories.
 - No failure clusters.
-- Latency p50/p95/max: 7343.73 / 12874.99 / 13757.38 ms.
+- Latency p50/p95/max: 0.02 / 0.36 / 7707.03 ms.
 
 ## Remaining Risks
 

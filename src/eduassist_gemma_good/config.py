@@ -24,6 +24,7 @@ class Settings:
     gemma_model: str
     gemma_request_timeout_seconds: float
     gemma_enable_planner: bool
+    gemma_enable_fast_router: bool
     gemma_enable_composer: bool
     gemma_enable_structured_composer: bool
     gemma_enable_vision: bool
@@ -41,6 +42,7 @@ def load_settings() -> Settings:
         ),
         gemma_request_timeout_seconds=float(os.getenv("GEMMA_REQUEST_TIMEOUT_SECONDS", "120")),
         gemma_enable_planner=_bool_env("GEMMA_ENABLE_PLANNER", True),
+        gemma_enable_fast_router=_bool_env("GEMMA_ENABLE_FAST_ROUTER", True),
         gemma_enable_composer=_bool_env("GEMMA_ENABLE_COMPOSER", True),
         gemma_enable_structured_composer=_bool_env("GEMMA_ENABLE_STRUCTURED_COMPOSER", True),
         gemma_enable_vision=_bool_env("GEMMA_ENABLE_VISION", True),

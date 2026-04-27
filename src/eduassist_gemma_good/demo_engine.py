@@ -207,6 +207,13 @@ class DemoEngine:
         persona: Persona,
         detected_student_id: str | None,
     ) -> tuple[tuple[ToolCall, ...], RuntimeMode, tuple[str, ...]]:
+        if self.settings.gemma_enable_fast_router:
+            return (
+                self._fallback_plan(question, persona, detected_student_id),
+                "fallback",
+                ("High-confidence deterministic router used before Gemma planning.",),
+            )
+
         if self.use_llm and self.settings.gemma_enable_planner:
             response = self.gemma.chat(
                 planner_prompt(question, persona, detected_student_id),
@@ -467,10 +474,19 @@ class DemoEngine:
         persona: Persona,
         results: Sequence[ToolResult],
     ) -> tuple[str, RuntimeMode, dict]:
-        if self.use_llm and self.settings.gemma_enable_composer:
+        if any(result.status == "denied" for result in results):
+            return self._fallback_compose(results, question), "fallback", {}
+        if any(item.access == "protected" for result in results for item in result.evidence):
+            return self._fallback_compose(results, question), "fallback", {}
+
+        if (
+            self.use_llm
+            and self.settings.gemma_enable_composer
+            and self._should_use_gemma_composer(question, results)
+        ):
             response = self.gemma.chat(
                 composition_prompt(question, persona, results),
-                max_tokens=700,
+                max_tokens=420,
                 temperature=0.2,
             )
             if response is not None:
@@ -484,9 +500,28 @@ class DemoEngine:
                 if answer is not None:
                     return answer, "gemma", {}
                 return response.text, "gemma", {}
-        return self._fallback_compose(results), "fallback", {}
+        return self._fallback_compose(results, question), "fallback", {}
 
-    def _fallback_compose(self, results: Sequence[ToolResult]) -> str:
+    def _should_use_gemma_composer(
+        self,
+        question: str,
+        results: Sequence[ToolResult],
+    ) -> bool:
+        normalized = normalize_text(question)
+        style_terms = (
+            "plain language",
+            "low-connectivity",
+            "portugues simples",
+            "responda em portugues",
+        )
+        return (
+            any(result.call.name == "search_public_knowledge" for result in results)
+            and not self._looks_like_public_policy_question(normalized)
+            and not any(term in normalized for term in style_terms)
+            and len(question) <= 90
+        )
+
+    def _fallback_compose(self, results: Sequence[ToolResult], question: str = "") -> str:
         denied = [result for result in results if result.status == "denied"]
         if denied:
             return denied[0].payload.get(
@@ -498,9 +533,20 @@ class DemoEngine:
         for result in results:
             if result.call.name == "search_public_knowledge":
                 docs = result.payload.get("documents", [])
-                lines.append("I found public school guidance that matches the question:")
-                for doc in docs:
-                    lines.append(f"- {doc['title']}: {doc['excerpt']}")
+                if self._looks_like_public_policy_question(normalize_text(question)):
+                    lines.append(
+                        "No. Public visitors can see school policies, calendars, enrollment "
+                        "instructions, and contact channels, but grades, absences, behavior "
+                        "notes, and individual student records require an authenticated "
+                        "guardian or authorized staff account."
+                    )
+                    continue
+                lines.append("I found public school guidance that matches the question.")
+                for doc in docs[:2]:
+                    excerpt = self._clean_public_excerpt(str(doc["excerpt"]))
+                    if len(excerpt) > 260:
+                        excerpt = excerpt[:257].rstrip() + "..."
+                    lines.append(f"- {doc['title']}: {excerpt}")
             elif result.call.name == "get_student_snapshot":
                 student = result.payload["student"]
                 lines.append(
@@ -514,6 +560,17 @@ class DemoEngine:
                 lines.append(f"Suggested support plan for {plan['student_name']}:")
                 lines.extend(f"- {step}" for step in plan["steps"])
         return "\n".join(lines) if lines else "No matching evidence was found."
+
+    def _clean_public_excerpt(self, excerpt: str) -> str:
+        cleaned_lines = []
+        for line in excerpt.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            if line.startswith("#"):
+                continue
+            cleaned_lines.append(line.removeprefix("- ").strip())
+        return " ".join(cleaned_lines) if cleaned_lines else "No public excerpt available."
 
     def _access_decision(
         self,

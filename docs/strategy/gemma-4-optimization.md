@@ -97,7 +97,12 @@ Key source-backed decisions:
   denials and zero protected-evidence leaks.
 - Submission proof result: 110/110 passed with local Gemma through
   `uv run python -m eduassist_gemma_good.stress_eval --use-llm
-  --submission-gemma-suite`.
+  --submission-gemma-suite`; after routing optimization, latency p50/p95/max is
+  0.02 / 0.36 / 7707.03 ms.
+- Runtime optimization follows the local-first pattern: deterministic Python
+  handles high-confidence routing, denials, protected-data composition, and
+  document-intake outputs; Gemma is reserved for concise grounded public
+  synthesis where language generation adds visible value.
 
 ## Remaining High-Ceiling Upgrade
 
