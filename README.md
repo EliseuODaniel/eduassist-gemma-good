@@ -157,7 +157,7 @@ Run a stratified stress sample with local Gemma:
 uv run python -m eduassist_gemma_good.stress_eval --use-llm --limit 45
 ```
 
-Run the 90-case submission proof suite with local Gemma:
+Run the 110-case submission proof suite with local Gemma:
 
 ```bash
 uv run python -m eduassist_gemma_good.stress_eval --use-llm \
@@ -177,8 +177,8 @@ Current local validation:
 - curated Gemma representative suite: 12/12 passed with local Gemma across
   public information, authorized support, privacy guardrails, and Portuguese
   cases; denial safety remained 3/3 with zero protected-evidence leaks.
-- stress battery: 856/856 passed in deterministic mode after privacy preflight
-  hardening; local Gemma submission proof suite passed 90/90 with 10 cases in
+- stress battery: 1131/1131 passed in deterministic mode after privacy preflight
+  hardening; local Gemma submission proof suite passed 110/110 with 10 cases in
   each stress category.
 
 ## Repository map

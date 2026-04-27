@@ -95,7 +95,7 @@ Key source-backed decisions:
   prompt-injection checks.
 - Latest local result: 12/12 passed with local Gemma, including 3/3 restricted
   denials and zero protected-evidence leaks.
-- Submission proof result: 90/90 passed with local Gemma through
+- Submission proof result: 110/110 passed with local Gemma through
   `uv run python -m eduassist_gemma_good.stress_eval --use-llm
   --submission-gemma-suite`.
 

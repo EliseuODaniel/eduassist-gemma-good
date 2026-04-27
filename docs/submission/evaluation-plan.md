@@ -64,7 +64,7 @@ Run a stratified stress sample with local Gemma:
 uv run python -m eduassist_gemma_good.stress_eval --use-llm --limit 45
 ```
 
-Run the balanced 90-case submission proof suite with local Gemma:
+Run the balanced 110-case submission proof suite with local Gemma:
 
 ```bash
 uv run python -m eduassist_gemma_good.stress_eval --use-llm \
@@ -95,14 +95,14 @@ On April 27, 2026, the expanded offline and stress suites passed locally:
   authorized-support cases, 3 privacy-guardrail cases, and Portuguese prompts.
 - Local Gemma denial safety in that suite: 3/3 restricted-data denials passed
   with zero protected-evidence leaks.
-- Stress battery: 856/856 passed in deterministic mode after privacy preflight
+- Stress battery: 1131/1131 passed in deterministic mode after privacy preflight
   hardening. The first stress run found 275 failures, concentrated in generic
   protected public requests, bulk/cross-student requests, and direct tool
   injection attempts; those are now covered by deterministic preflight.
-- Balanced local Gemma submission proof: 90/90 passed through
-  `--submission-gemma-suite`, with 10/10 cases in each stress category.
+- Balanced local Gemma submission proof: 110/110 passed through
+  `--submission-gemma-suite`, with 10/10 cases in each of 11 stress categories.
 - Local Gemma submission proof latency p50/p95/max:
-  7535.29 / 13591.28 / 14766.29 ms.
+  7343.73 / 12874.99 / 13757.38 ms.
 
 This is not a benchmark of raw model intelligence. It is a product regression
 suite that tests the core promises of the submission:

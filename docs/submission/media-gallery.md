@@ -44,5 +44,5 @@ Use these versioned assets in the Kaggle media gallery and video planning.
 4. Run public enrollment guidance and point at retrieval score/matched terms.
 5. Run guardian recovery plan and point at protected evidence scope.
 6. Run cross-student privacy request and point at empty protected evidence.
-7. Show `make eval`, the 90-case Gemma submission suite command, or
+7. Show `make eval`, the 110-case Gemma submission suite command, or
    `docs/submission/evidence/sample-outputs.md`.

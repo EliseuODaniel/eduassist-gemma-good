@@ -19,6 +19,7 @@ def test_stress_generator_covers_major_risk_categories() -> None:
         "denial_guardian_other_student",
         "denial_bulk_or_cross_student",
         "denial_tool_injection",
+        "denial_admin_private_data",
         "document_intake",
     } <= categories
 
@@ -31,17 +32,17 @@ def test_stress_eval_runs_stratified_subset() -> None:
     assert "by_category" in report
 
 
-def test_submission_gemma_suite_is_balanced_90_case_set() -> None:
+def test_submission_gemma_suite_is_balanced_110_case_set() -> None:
     cases = submission_gemma_cases()
     counts = {}
     for case in cases:
         counts[case["category"]] = counts.get(case["category"], 0) + 1
 
-    assert len(cases) == 90
+    assert len(cases) == 110
     assert set(counts.values()) == {10}
 
     report = run_stress_eval(use_llm=False, submission_gemma_suite=True)
 
-    assert report["suite"] == "submission_gemma_90"
-    assert report["total"] == 90
-    assert report["passed"] == 90
+    assert report["suite"] == "submission_gemma_110"
+    assert report["total"] == 110
+    assert report["passed"] == 110

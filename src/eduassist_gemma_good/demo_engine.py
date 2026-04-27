@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from collections.abc import Sequence
 
 from .config import Settings, load_settings
@@ -93,6 +94,60 @@ PROTECTED_REQUEST_PHRASES = (
     "my kid",
 )
 MY_CHILD_TERMS = ("my child", "my kid", "minha filha", "meu filho")
+CAPITALIZED_NAME_RE = re.compile(
+    r"\b[A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÖØ-öø-ÿ]+(?:\s+[A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÖØ-öø-ÿ]+)+\b"
+)
+NAME_LEADING_STOPWORDS = {
+    "build",
+    "call",
+    "compare",
+    "create",
+    "give",
+    "list",
+    "mostre",
+    "plan",
+    "qual",
+    "recovery",
+    "reveal",
+    "show",
+    "sou",
+    "study",
+    "tell",
+    "use",
+    "what",
+}
+RESTRICTED_ADMIN_PRIVATE_TERMS = (
+    "employee file",
+    "folha de pagamento",
+    "medical records",
+    "payroll",
+    "principal staff file",
+    "salary",
+    "salario",
+    "staff file",
+    "staff salary",
+)
+PUBLIC_POLICY_QUESTION_PHRASES = (
+    "are grades public",
+    "authenticated access",
+    "can public",
+    "can teachers export",
+    "can visitors",
+    "public information",
+    "public visitors",
+    "podem exportar",
+    "requires authenticated",
+    "requires guardian access",
+    "student records protected",
+    "what is the policy",
+    "what policy",
+    "which student information",
+    "allowed to see",
+    "podem ver",
+    "politica para",
+    "politica de",
+    "visitantes publicos",
+)
 
 
 class DemoEngine:
@@ -112,16 +167,20 @@ class DemoEngine:
         detected_student_ids = self.data_store.find_students_by_text(question)
         detected_student_id = detected_student_ids[0] if len(detected_student_ids) == 1 else None
         preflight_denial = self._preflight_denial(question, persona, detected_student_ids)
-        if preflight_denial is None:
+        if preflight_denial is not None:
+            calls = (preflight_denial,)
+            planning_mode = "fallback"
+            safety_notes = ("Deterministic privacy preflight denied the request.",)
+        elif self._looks_like_public_policy_question(normalize_text(question)):
+            calls = (ToolCall("search_public_knowledge", {"query": question}),)
+            planning_mode = "fallback"
+            safety_notes = ("Deterministic public-policy preflight routed to public documents.",)
+        else:
             calls, planning_mode, safety_notes = self._plan(
                 question,
                 persona,
                 detected_student_id,
             )
-        else:
-            calls = (preflight_denial,)
-            planning_mode = "fallback"
-            safety_notes = ("Deterministic privacy preflight denied the request.",)
         results = self.executor.execute_all(calls, persona)
         answer, composition_mode, structured_output = self._compose(question, persona, results)
         evidence = tuple(item for result in results for item in result.evidence)
@@ -183,6 +242,8 @@ class DemoEngine:
     ) -> tuple[ToolCall, ...]:
         normalized = normalize_text(question)
         normalized_tokens = tokens(question)
+        if self._looks_like_public_policy_question(normalized):
+            return (ToolCall("search_public_knowledge", {"query": question}),)
         target_student_id = detected_student_id
         if (
             target_student_id is None
@@ -252,6 +313,18 @@ class DemoEngine:
                 "deny_request",
                 {"reason": "The request attempts to control internal tools or bypass policy."},
             )
+        if self._looks_like_restricted_admin_private_request(normalized) and not (
+            self._looks_like_public_policy_question(normalized)
+        ):
+            return ToolCall(
+                "deny_request",
+                {
+                    "reason": (
+                        "The request asks for private administrative data outside "
+                        "the public school information scope."
+                    )
+                },
+            )
         if len(detected_student_ids) > 1:
             return ToolCall(
                 "deny_request",
@@ -266,12 +339,29 @@ class DemoEngine:
             len(detected_student_ids) == 1
             and detected_student_ids[0] not in persona.student_ids
             and self._looks_like_protected_request(normalized, normalized_tokens)
+            and not self._looks_like_public_policy_question(normalized)
         ):
             return ToolCall(
                 "deny_request",
                 {"reason": "The selected persona is not authorized for the requested student."},
             )
-        if any(term in normalized for term in BULK_OR_CROSS_STUDENT_TERMS):
+        if (
+            self._looks_like_protected_request(normalized, normalized_tokens)
+            and self._mentions_unrecognized_named_person(question, persona, detected_student_ids)
+            and not self._looks_like_public_policy_question(normalized)
+        ):
+            return ToolCall(
+                "deny_request",
+                {
+                    "reason": (
+                        "The request appears to ask for a named person's protected "
+                        "record outside the selected persona scope."
+                    )
+                },
+            )
+        if any(term in normalized for term in BULK_OR_CROSS_STUDENT_TERMS) and not (
+            self._looks_like_public_policy_question(normalized)
+        ):
             return ToolCall(
                 "deny_request",
                 {
@@ -285,6 +375,7 @@ class DemoEngine:
             self._looks_like_protected_request(normalized, normalized_tokens)
             and not detected_student_ids
             and not self._can_resolve_my_child_reference(normalized, persona)
+            and not self._looks_like_public_policy_question(normalized)
         ):
             return ToolCall(
                 "deny_request",
@@ -305,6 +396,34 @@ class DemoEngine:
 
     def _can_resolve_my_child_reference(self, normalized: str, persona: Persona) -> bool:
         return len(persona.student_ids) == 1 and any(term in normalized for term in MY_CHILD_TERMS)
+
+    def _looks_like_public_policy_question(self, normalized: str) -> bool:
+        return any(phrase in normalized for phrase in PUBLIC_POLICY_QUESTION_PHRASES)
+
+    def _looks_like_restricted_admin_private_request(self, normalized: str) -> bool:
+        return any(term in normalized for term in RESTRICTED_ADMIN_PRIVATE_TERMS)
+
+    def _mentions_unrecognized_named_person(
+        self,
+        question: str,
+        persona: Persona,
+        detected_student_ids: tuple[str, ...],
+    ) -> bool:
+        allowed_entities: list[set[str]] = []
+        for student_id in tuple(dict.fromkeys((*persona.student_ids, *detected_student_ids))):
+            student = self.data_store.get_student(student_id)
+            allowed_entities.append(tokens(student["name"]))
+            allowed_entities.append(tokens(student["guardian"]))
+
+        for candidate in CAPITALIZED_NAME_RE.findall(question):
+            candidate_tokens = tokens(candidate)
+            candidate_tokens -= NAME_LEADING_STOPWORDS
+            if not candidate_tokens:
+                continue
+            if any(candidate_tokens <= allowed for allowed in allowed_entities):
+                continue
+            return True
+        return False
 
     def _complete_model_plan(
         self,
@@ -402,4 +521,6 @@ class DemoEngine:
             return "restricted_denied"
         if any(item.access == "protected" for item in evidence):
             return "protected_allowed"
+        if results and all(result.call.name == "search_public_knowledge" for result in results):
+            return "public"
         return infer_access_intent(question)

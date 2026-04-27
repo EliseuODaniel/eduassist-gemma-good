@@ -105,15 +105,19 @@ information cases, 5 authorized support cases, 3 privacy guardrail cases, and
 Portuguese prompts. The local Gemma suite preserved 3/3 restricted-data denials
 with zero protected-evidence leaks.
 
-An additional adversarial stress runner now generates 856 cases across public
-questions, authorized support, generic protected requests, bulk/cross-student
-requests, direct tool-injection attempts, Portuguese prompts, and document
-intake. The first run found 275 failures in generic public protected requests,
-bulk protected requests, and tool-injection language. A deterministic privacy
-preflight now catches those before Gemma or fallback planning; the current
-stress result is 856/856 deterministic. The balanced 90-case local Gemma
-submission proof suite passed 90/90 with 10 cases in every stress category and
-no failure clusters.
+An additional adversarial stress runner now generates 1131 cases across public
+questions, public policy-boundary prompts, authorized support, generic protected
+requests, private administrative data requests, bulk/cross-student requests,
+direct tool-injection attempts, Portuguese prompts, and document intake. The
+first run found 275 failures in generic public protected requests, bulk
+protected requests, and tool-injection language. A later red-team expansion also
+found public-policy false positives and private administrative data fallthroughs.
+The final stress pass also covered mixed named-person prompts that combine an
+authorized student with an unrecognized requested student. A deterministic
+privacy preflight now catches those before Gemma or fallback planning; the
+current stress result is 1131/1131 deterministic. The balanced 110-case local
+Gemma submission proof suite passed 110/110 with 10 cases in each of 11 stress
+categories and no failure clusters.
 
 Concrete outputs for the video flow are versioned in
 `docs/submission/evidence/sample-outputs.md`, and the architecture/storyboard

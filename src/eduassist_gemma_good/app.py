@@ -222,9 +222,9 @@ def render_submission_brief() -> None:
 def render_scoreboard() -> None:
     metrics = (
         ("181/181", "offline regression"),
-        ("856/856", "adversarial stress"),
+        ("1131/1131", "adversarial stress"),
         ("12/12", "curated Gemma suite"),
-        ("90/90", "Gemma submission suite"),
+        ("110/110", "Gemma submission suite"),
     )
     columns = st.columns(4)
     for column, (value, label) in zip(columns, metrics, strict=True):
