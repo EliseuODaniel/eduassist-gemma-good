@@ -1,8 +1,9 @@
 # Implementation Status
 
 As of April 27, 2026, the repository-side hackathon package is 100%
-implemented. The remaining work is outside this repository: record/publish the
-demo video and paste the final links into Kaggle.
+implemented except for final external publication tasks: record/publish the
+demo video, optionally publish a lightweight live demo link, and paste the final
+links into Kaggle.
 
 ## Implemented
 
@@ -13,8 +14,10 @@ demo video and paste the final links into Kaggle.
 - Gemma-optimized planner/parser support for `parameters`, one-call JSON,
   multi-call JSON, direct JSON arrays, legacy `arguments`, and native Gemma
   `<|tool_call>` markers.
-- Structured Gemma composer output for answers, checklists, plans, message
-  drafts, and safety notes, with deterministic fallback templates.
+- Gemma public rewriter for non-sensitive school guidance, backed by validated
+  deterministic drafts and public source titles.
+- Deterministic action-output structure for checklists, plans, message drafts,
+  and safety notes, so sensitive flows never depend on model formatting.
 - Optional local Gemma vision path for uploaded image notices, with embedded
   demo OCR text plus local OCR and text extraction fallback.
 - Versioned visual PNG notice for reproducible image-intake demo.
@@ -23,6 +26,8 @@ demo video and paste the final links into Kaggle.
 - Persona-scoped access checks for public visitors, guardians, and teachers.
 - Prepared demo question picker sourced from the expanded question battery.
 - Tool trace, evidence panel, runtime mode, and access decision in the UI.
+- Judge Mode screen for the full evaluator story: document intake, Gemma public
+  rewrite, authorized support, privacy denial, and proof metrics.
 - Expanded offline evaluation with 181/181 passing locally, including 54/54
   restricted-data denials and zero denial leak failures.
 - Adversarial stress runner with 1131 generated cases across public,
@@ -31,7 +36,8 @@ demo video and paste the final links into Kaggle.
 - Deterministic privacy preflight for generic protected requests, multiple
   student records, bulk/class-wide protected data, and direct tool manipulation.
 - Stress validation: 1131/1131 deterministic and 110/110 balanced local Gemma
-  submission proof suite.
+  submission proof suite, with latest local Gemma latency p50/p95/max
+  0.01 / 0.51 / 8328.24 ms.
 - Representative Gemma subset support through repeated `--case-id` arguments and
   a curated 12-case `--representative-gemma-suite`, now validated at 12/12 with
   local Gemma.
@@ -54,8 +60,8 @@ demo video and paste the final links into Kaggle.
 
 ## Readiness Estimate
 
-- Core product demo: 90%.
-- Local Gemma runtime: 95%.
+- Core product demo: 100%.
+- Local Gemma runtime: 98%.
 - Evaluation and safety evidence: 100%.
 - Public submission assets: 100%.
 - Repository-side Kaggle readiness: 100%.

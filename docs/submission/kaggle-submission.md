@@ -6,10 +6,10 @@ EduAssist Field Kit: Private, Offline School Assistance with Gemma 4
 
 ## One-line Summary
 
-EduAssist Field Kit uses Gemma 4 running locally to help families and school
-staff turn school notices, public questions, and scoped student-support requests
-into safe next actions while deterministic tools enforce student-data scope,
-evidence grounding, and auditable denials.
+EduAssist Field Kit uses Gemma 4 running locally to rewrite public,
+non-sensitive school guidance into clear next actions while deterministic tools
+handle notices, protected student support, student-data scope, evidence
+grounding, and auditable denials.
 
 ## Impact Area
 
@@ -37,34 +37,31 @@ interface for four common workflows: document intake, public school information,
 authorized guardian or teacher support, and safe denial of restricted student
 data.
 
-Gemma 4 is central to the application. It is used first as a tool planner: given
-the user's question, selected persona, authorized synthetic student ids, and
-available tool schemas, Gemma proposes a compact JSON tool call. The Python
-application then validates the tool name, arguments, and persona scope before
-execution. Gemma is used again as a grounded composer: it receives only validated
-tool results and produces the final answer from evidence. The model never gets
-direct database access.
+Gemma 4 is central but deliberately bounded. In the optimized default path,
+deterministic Python handles high-confidence routing, authorization, protected
+support, denials, public-policy boundaries, and document intake. Gemma then
+rewrites only public, non-sensitive school guidance from a validated draft and
+public source titles. The model never gets direct database access and is never
+the policy boundary for protected student data.
 
 The Gemma integration follows the official documentation more closely than a
-plain chat wrapper. Planner prompts use a Gemma-oriented function-calling
-contract, the parser accepts `parameters`, one-call JSON, multi-call JSON, direct
-JSON arrays, legacy `arguments`, and native `<|tool_call>` markers, and the
-composer returns structured JSON for the answer, checklist, recovery plan,
-school message draft, and safety note. Image notice uploads can also attempt a
-local Gemma vision transcription path before falling back to local OCR/text
-extraction. The repo includes a visual PNG school notice for a reproducible
-image-intake demo. For explicit recovery-plan requests, the executor
-deterministically adds `build_study_plan` when Gemma has already selected an
-authorized student snapshot but omitted the follow-up call, preserving a
-reliable product workflow without expanding model privileges.
+plain chat wrapper. The repo keeps a Gemma-oriented function-calling planner
+contract, and the parser accepts `parameters`, one-call JSON, multi-call JSON,
+direct JSON arrays, legacy `arguments`, and native `<|tool_call>` markers. The
+public rewriter asks Gemma for a concise JSON answer, while checklists, recovery
+plans, school message drafts, and safety notes are generated deterministically.
+Image notice uploads can also attempt a local Gemma vision transcription path
+before falling back to local OCR/text extraction. The repo includes a visual PNG
+school notice for a reproducible image-intake demo.
 
-The app intentionally uses a lightweight custom planner-executor-composer loop
+The app intentionally uses a lightweight custom planner-executor-rewriter loop
 instead of LangGraph or a specialist supervisor. That keeps the hackathon demo
-local, auditable, and easy to explain: Gemma plans and writes, while Python owns
-tool validation, access policy, and execution. Public retrieval is also local:
-weighted lexical search with bilingual query expansion returns ranked evidence
-plus `score` and `matched_terms`, while protected student data remains a scoped
-deterministic lookup rather than a retriever.
+local, auditable, and easy to explain: Gemma improves public language, while
+Python owns routing, tool validation, access policy, execution, and sensitive
+composition. Public retrieval is also local: weighted lexical search with
+bilingual query expansion returns ranked evidence plus `score` and
+`matched_terms`, while protected student data remains a scoped deterministic
+lookup rather than a retriever.
 
 The deterministic tool layer includes public document search, protected
 synthetic student snapshots, study-plan generation, and explicit denial results.
@@ -91,13 +88,16 @@ public policy-boundary questions, private administrative data requests, and
 mixed named-person prompts, the app added deterministic preflight before Gemma
 planning. The current stress
 result is 1131/1131 in deterministic mode, and the balanced 110-case local Gemma
-submission proof suite passed 110/110 with no failure clusters.
+submission proof suite passed 110/110 with no failure clusters. The latest
+local Gemma proof latency p50/p95/max is 0.01 / 0.51 / 8328.24 ms because most
+privacy-sensitive paths avoid unnecessary model calls.
 
 The main technical challenge was balancing model usefulness with privacy. A plain
 chatbot could easily over-answer or invent access. EduAssist Field Kit instead
-gives Gemma a narrow planning role and keeps authorization in deterministic
-Python code. If a guardian asks for another student's grades, the app returns a
-denial tool result and never exposes that restricted record to the composer.
+gives Gemma a narrow public rewriting role and keeps authorization in
+deterministic Python code. If a guardian asks for another student's grades, the
+app returns a denial tool result and never exposes that restricted record to the
+model.
 
 This is not a finished production identity platform. It is a focused hackathon
 prototype showing a deployable pattern: local open-model reasoning plus small,
@@ -110,7 +110,7 @@ cloud dependency.
 - Start the local model with `make llm-up`.
 - Start the app with `make app`.
 - Show the sidebar: Gemma endpoint online, model id, prepared-case coverage.
-- Click `Run winning demo` and show the scorecards.
+- Click `Open judge mode` and show the scorecards.
 - Show the document intake workflow with `enrollment-support-notice.png` or
   `enrollment-support-notice.md`.
 - Run the public enrollment question.

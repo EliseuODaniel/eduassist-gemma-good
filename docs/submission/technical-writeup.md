@@ -24,17 +24,21 @@ The project fits Future of Education and Digital Equity:
 ```mermaid
 flowchart LR
     U["Family or staff user"] --> UI["Streamlit demo"]
-    UI --> P["Gemma 4 planner"]
-    P --> V["Tool validator and access policy"]
+    UI --> R["Deterministic router"]
+    R --> P["Optional Gemma 4 planner"]
+    R --> V["Tool validator and access policy"]
+    P --> V
     V --> T1["Public document search"]
     V --> T2["Protected synthetic student snapshot"]
     V --> T3["Study plan builder"]
     V --> D["Safe denial"]
-    T1 --> C["Gemma 4 grounded composer"]
-    T2 --> C
-    T3 --> C
-    D --> C
-    C --> UI
+    T1 --> G["Gemma 4 public rewriter"]
+    T1 --> A["Deterministic action outputs"]
+    T2 --> A
+    T3 --> A
+    D --> A
+    G --> A
+    A --> UI
 ```
 
 The repository uses a deliberately small tool surface. Gemma 4 can propose a
@@ -42,7 +46,7 @@ tool call, but the Python application validates names, arguments, and persona
 scope before execution. Protected data is never exposed directly to the model
 unless the deterministic policy layer approves it for the selected persona.
 
-The orchestration is a lightweight custom planner-executor-composer loop. It
+The orchestration is a lightweight custom router-executor-rewriter loop. It
 does not use LangGraph or the specialist supervisor architecture from the larger
 EduAssist platform because this public hackathon fork needs minimal local setup,
 short audit paths, and a very small tool surface. The design keeps Gemma central
@@ -77,10 +81,10 @@ The implementation was adjusted to better exploit Gemma 4 rather than treating
 it as a generic chat model. Planner instructions are embedded in the user turn
 to match Gemma's instruction-tuned prompt guidance. The parser accepts Gemma's
 documented `parameters` style, one-call JSON, multi-call JSON, direct JSON
-arrays, legacy `arguments`, and native `<|tool_call>` markers. The composer asks
-Gemma to rewrite only public, non-sensitive drafts. The structured checklist,
-message, plan, and safety note are merged from deterministic public templates so
-the UI contract does not depend on arbitrary model formatting.
+arrays, legacy `arguments`, and native `<|tool_call>` markers. The public
+rewriter asks Gemma to improve only public, non-sensitive drafts. The structured
+checklist, message, plan, and safety note are merged from deterministic public
+templates so the UI contract does not depend on arbitrary model formatting.
 
 The executor includes a narrow deterministic completion step for recovery-plan
 requests: if Gemma selects an authorized student snapshot but omits the
@@ -132,7 +136,7 @@ media assets are listed in `docs/submission/media-gallery.md`.
 - The model never receives unrestricted database access.
 - Tool execution is mapped by explicit Python functions, not dynamic globals.
 - Student snapshots require an authorized persona.
-- Unauthorized requests return a denial result, which the composer must respect.
+- Unauthorized requests return a denial result before any public rewrite path.
 - The UI displays access decisions, tool calls, and evidence.
 
 ## Current limitations

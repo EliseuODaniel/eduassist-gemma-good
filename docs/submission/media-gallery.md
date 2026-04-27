@@ -12,7 +12,7 @@ Use these versioned assets in the Kaggle media gallery and video planning.
 
 - File: `docs/submission/assets/field-kit-architecture.svg`
 - Purpose: show why the project is not a generic chatbot.
-- Message: Gemma plans and composes; Python validates policy and executes
+- Message: Gemma rewrites public guidance; Python validates policy and executes
   narrow tools; retrieval and protected data remain local and auditable.
 
 ## Demo Storyboard
@@ -39,7 +39,7 @@ Use these versioned assets in the Kaggle media gallery and video planning.
 ## Recommended Video Order
 
 1. Show local Gemma endpoint online.
-2. Click `Run winning demo` for the end-to-end story in one screen.
+2. Click `Open judge mode` for the end-to-end story in one screen.
 3. Run document intake on `enrollment-support-notice.png`.
 4. Run public enrollment guidance and point at retrieval score/matched terms.
 5. Run guardian recovery plan and point at protected evidence scope.

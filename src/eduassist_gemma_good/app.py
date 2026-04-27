@@ -209,9 +209,8 @@ def render_submission_brief() -> None:
         <div class="ea-brief">
             <h3>Private offline school assistance with Gemma 4</h3>
             <p>
-                One reproducible workflow for judges: local notice intake, public
-                evidence retrieval, authorized student support, and visible privacy
-                denial before protected data can leak.
+                Judge-ready flow: Gemma rewrites public guidance locally, while
+                deterministic tools keep protected data scoped, denied, and auditable.
             </p>
         </div>
         """,
@@ -493,11 +492,11 @@ def render_document_intake(data_dir: Path, settings: Settings, use_llm: bool) ->
         render_action_output(action_output_from_notice(facts))
 
 
-def render_winning_demo(engine: DemoEngine, settings: Settings) -> None:
-    st.header("Winning Demo Run")
+def render_judge_mode(engine: DemoEngine, settings: Settings) -> None:
+    st.header("Judge Mode")
     st.markdown(
-        '<p class="ea-caption">One end-to-end submission story: notice, public guidance, '
-        "authorized support, and privacy denial.</p>",
+        '<p class="ea-caption">One end-to-end review path: notice intake, Gemma public rewrite, '
+        "authorized support, privacy denial, and proof metrics.</p>",
         unsafe_allow_html=True,
     )
     render_scoreboard()
@@ -524,7 +523,7 @@ def render_winning_demo(engine: DemoEngine, settings: Settings) -> None:
 
     demo_cases = (
         (
-            "2. Public family guidance",
+            "2. Public Gemma rewrite",
             "What documents do I need for enrollment?",
             "public",
         ),
@@ -543,8 +542,9 @@ def render_winning_demo(engine: DemoEngine, settings: Settings) -> None:
         with st.expander(title, expanded=True):
             if persona_key == "public":
                 render_step(
-                    "Public guidance is grounded",
-                    "Gemma plans a narrow public search and the UI shows ranked evidence.",
+                    "Public guidance stays useful",
+                    "Gemma rewrites a validated public draft while the tool trace keeps "
+                    "sources visible.",
                 )
             elif "Privacy" in title:
                 render_step(
@@ -568,6 +568,24 @@ def render_winning_demo(engine: DemoEngine, settings: Settings) -> None:
             metrics[2].metric("Tools", str(len(response.tool_results)))
             render_action_output(action_output_from_response(response), show_printable=False)
             render_trace(response)
+
+    with st.expander("5. Proof metrics", expanded=True):
+        render_step(
+            "Submission proof is reproducible",
+            "The repo includes deterministic regression, adversarial stress, and a "
+            "local Gemma proof suite.",
+        )
+        proof_cols = st.columns(4)
+        proof_cols[0].metric("Regression", "181/181")
+        proof_cols[1].metric("Stress", "1131/1131")
+        proof_cols[2].metric("Gemma suite", "110/110")
+        proof_cols[3].metric("p95", "0.51 ms")
+        st.code(
+            "make eval\n"
+            "uv run python -m eduassist_gemma_good.stress_eval\n"
+            "uv run python -m eduassist_gemma_good.stress_eval --use-llm --submission-gemma-suite",
+            language="bash",
+        )
 
 
 def extract_notice_text_for_app(
@@ -605,11 +623,11 @@ def main() -> None:
         render_runtime(settings, use_llm)
         st.caption(settings.gemma_base_url)
         st.caption(settings.gemma_model)
-        run_winning_demo = st.button(
-            "Run winning demo",
+        run_judge_mode = st.button(
+            "Open judge mode",
             type="primary",
             width="stretch",
-            key="sidebar_winning_demo",
+            key="sidebar_judge_mode",
         )
 
     engine = DemoEngine(settings, use_llm=use_llm)
@@ -620,19 +638,19 @@ def main() -> None:
 
     demo_col, eval_col = st.columns([0.72, 0.28], gap="medium")
     with demo_col:
-        run_winning_demo_main = st.button(
-            "Run winning demo",
+        run_judge_mode_main = st.button(
+            "Open judge mode",
             type="primary",
             width="stretch",
-            key="main_winning_demo",
+            key="main_judge_mode",
         )
     with eval_col:
-        st.caption("Use this first for the video story.")
+        st.caption("Use this first for the judge review story.")
         st.caption("Then show stress and eval metrics.")
-    run_winning_demo = run_winning_demo or run_winning_demo_main
+    run_judge_mode = run_judge_mode or run_judge_mode_main
 
-    if run_winning_demo:
-        render_winning_demo(engine, settings)
+    if run_judge_mode:
+        render_judge_mode(engine, settings)
         return
 
     workflow_key = st.selectbox(

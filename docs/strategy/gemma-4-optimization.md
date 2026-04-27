@@ -23,7 +23,7 @@ Key source-backed decisions:
   before execution. EduAssist already keeps execution in a typed Python registry
   and never gives the model direct data access.
 - Gemma instruction-tuned prompt structure is user/model oriented. Planner and
-  composer instructions are therefore embedded in the user turn for the
+  public-rewriter instructions are therefore embedded in the user turn for the
   OpenAI-compatible local endpoint instead of depending on an unsupported system
   role.
 - Gemma 4 function-calling examples use explicit function schemas and native
@@ -60,20 +60,17 @@ Key source-backed decisions:
   execution. This keeps Gemma central for intent and target selection while
   making the product workflow reliable.
 
-### Composer
+### Public Rewriter
 
-- The composer now requests structured JSON with:
-  - `answer`
-  - `action_output.title`
-  - `action_output.checklist`
-  - `action_output.plan`
-  - `action_output.message`
-  - `action_output.safety_note`
-- The UI action panel prefers valid structured Gemma output and falls back to
-  deterministic templates if the model output is invalid.
-- The prompt includes stable conventions for public guidance, recovery plans,
-  and privacy denials so evaluations can check useful output structure without
-  requiring exact answer wording.
+- The optimized default path asks Gemma to rewrite only public, non-sensitive
+  drafts from deterministic retrieval.
+- Gemma receives the user question, a validated public draft, and public source
+  titles, not protected student records.
+- Checklists, action plans, message drafts, and safety notes are deterministic
+  and merged back into the response contract even when Gemma produces only an
+  `answer` field.
+- A short rewrite timeout keeps local UX responsive; if Gemma returns empty or
+  invalid output, the safe deterministic draft is used.
 
 ### Vision And Document Intake
 
@@ -98,7 +95,7 @@ Key source-backed decisions:
 - Submission proof result: 110/110 passed with local Gemma through
   `uv run python -m eduassist_gemma_good.stress_eval --use-llm
   --submission-gemma-suite`; after routing optimization, latency p50/p95/max is
-  0.02 / 0.39 / 8332.83 ms.
+  0.01 / 0.51 / 8328.24 ms.
 - Runtime optimization follows the local-first pattern: deterministic Python
   handles high-confidence routing, denials, protected-data composition, and
   document-intake outputs; Gemma is reserved for rewriting public, non-sensitive

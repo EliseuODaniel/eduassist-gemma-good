@@ -22,7 +22,8 @@ Narration:
 ```text
 EduAssist Field Kit is a Gemma 4 Good project for schools that need useful AI
 support without sending every private student question to a cloud model. Gemma 4
-runs locally, while narrow deterministic tools keep data access auditable.
+runs locally to improve public guidance, while narrow deterministic tools keep
+protected data access auditable.
 ```
 
 ## Scene 2: Document intake, 0:35-1:15
@@ -58,17 +59,17 @@ What documents do I need for enrollment?
 
 Show:
 
-- answer from public evidence;
+- Gemma-rewritten answer from a validated public draft;
 - `search_public_knowledge` trace;
 - public access decision.
 
 Narration:
 
 ```text
-For public procedures, Gemma plans a public document search and then writes a
-plain-language answer from retrieved evidence. The UI shows the tool trace and
-source, including retrieval rank, score, and matched terms, so this is not a
-black-box chatbot response.
+For public procedures, deterministic retrieval builds a safe draft from school
+documents, and Gemma rewrites only that non-sensitive public guidance. The UI
+shows the tool trace and source, including retrieval rank, score, and matched
+terms, so this is not a black-box chatbot response.
 ```
 
 ## Scene 4: Authorized guardian support, 1:55-2:45
@@ -94,8 +95,8 @@ Narration:
 
 ```text
 For a scoped guardian, the policy layer allows only that guardian's synthetic
-student record. Gemma can request the study-plan tool, but Python validates the
-persona, arguments, and access before any protected data reaches the composer.
+student record. The protected answer is controlled by deterministic tools, so
+Gemma never becomes the privacy boundary.
 ```
 
 ## Scene 5: Safe denial, 2:45-3:30
@@ -135,7 +136,7 @@ uv run python -m eduassist_gemma_good.stress_eval --use-llm --submission-gemma-s
 
 Emphasize the product thesis:
 
-EduAssist Field Kit uses Gemma 4 for local reasoning and language, while
+EduAssist Field Kit uses Gemma 4 for local public-language improvement, while
 deterministic tools keep school data scoped, auditable, and useful in
 low-connectivity environments.
 

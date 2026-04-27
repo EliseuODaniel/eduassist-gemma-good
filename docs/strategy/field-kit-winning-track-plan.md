@@ -88,9 +88,10 @@ The video should show one coherent story:
 
 1. A family brings a photo or PDF of a school notice.
 2. The app extracts deadlines, required documents, and next actions.
-3. A guardian asks for help with the child's recovery plan.
-4. Gemma plans tool calls; deterministic policy validates access.
-5. The app generates a printable action plan and a message to the school.
+3. A public visitor asks an enrollment question, and Gemma rewrites the
+   validated public draft.
+4. A guardian asks for help with the child's recovery plan.
+5. Deterministic policy validates access and generates a controlled action plan.
 6. The same user asks for another student's private data.
 7. The app denies the request and shows that no protected evidence was exposed.
 8. The presenter shows local Gemma, GPU/local runtime, and evaluation metrics.
@@ -180,7 +181,7 @@ Pragmatic architecture for the branch:
 ```text
 Streamlit or React UI
     -> FastAPI/domain service boundary
-    -> Gemma planner/composer client
+    -> Gemma optional planner/public rewriter client
     -> typed tool registry
     -> access policy engine
     -> public/protected synthetic data stores
@@ -340,14 +341,14 @@ Exit criteria:
 
 Goal: make the branch submission-ready.
 
-Implementation status: in progress. The architecture/retrieval decision is now
+Implementation status: complete except external video/publication. The architecture/retrieval decision is now
 documented, and public retrieval has been upgraded with local weighted lexical
-ranking plus bilingual query expansion. Gemma 4 prompt, tool-call, structured
-output, and vision optimization decisions are documented in
+ranking plus bilingual query expansion. Gemma 4 prompt, optional tool-call,
+public rewrite, and vision optimization decisions are documented in
 `docs/strategy/gemma-4-optimization.md`. Versioned evidence, architecture media,
-storyboard assets, and a curated 12-case Gemma representative suite have been
-added. The 12-case suite now passes 12/12 with local Gemma; the remaining major
-item is recording the external demo video.
+storyboard assets, Judge Mode, and the 110-case local Gemma submission proof
+suite have been added. The remaining major item is recording the external demo
+video.
 
 Tasks:
 

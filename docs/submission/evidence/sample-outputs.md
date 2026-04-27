@@ -1,9 +1,9 @@
 # Field Kit Sample Outputs
 
-These examples are generated from the local deterministic path used by
-`make eval`. The representative Gemma-enabled subset is also validated in the
-evaluation plan; the output shapes below show the product contract judges should
-look for in the UI.
+These examples show the product contract judges should look for in the UI. The
+default optimized runtime uses Gemma only to rewrite public, non-sensitive
+answers from validated drafts; protected support, denials, public-policy
+boundaries, document intake, and action-output structure remain deterministic.
 
 ## 1. Document Intake
 
@@ -47,7 +47,7 @@ Safety note:
 Generated locally from the uploaded or selected school notice.
 ```
 
-## 2. Public Family Guidance
+## 2. Public Gemma Rewrite
 
 Persona: `Public visitor`
 
@@ -61,12 +61,21 @@ Tool trace:
 
 - Tool: `search_public_knowledge`
 - Access policy: `public`
+- Runtime: `gemma` when the public rewriter returns in time; otherwise the safe
+  deterministic draft is used.
 - Top retrieval result: `enrollment`
 - Retrieval score: `15.37`
 - Matched terms: `document`, `enrollment`, `reenrollment`
 
+Representative answer:
+
+```text
+For enrollment, families generally need a student identification document, a guardian identification document, proof of residence issued within the last 90 days, a previous school transcript if transferring, a signed digital services consent form, and a health and emergency contact form.
+```
+
 Action output:
 
+- Use public school documents for this guidance.
 - Review the public guidance returned by the school knowledge base.
 - Collect any documents, dates, or office hours mentioned in the answer.
 - Use in-person support if the family cannot complete the step online.
@@ -99,6 +108,7 @@ Tool trace:
 - `get_student_snapshot`: allowed for `stu_ana_luiza`
 - `build_study_plan`: allowed for `stu_ana_luiza`
 - Access decision: `protected_allowed`
+- Runtime: deterministic controlled composition.
 
 Recovery plan:
 
@@ -135,6 +145,7 @@ Tool trace:
 - Status: `denied`
 - Access decision: `restricted_denied`
 - Protected evidence exposed: `0`
+- Runtime: deterministic controlled denial.
 
 Action output:
 
@@ -168,3 +179,4 @@ The request asks for protected data outside the selected persona scope.
   leaks
 - Stress battery: `1131/1131` deterministic, `110/110` balanced local Gemma
   submission proof
+- Local Gemma submission latency p50/p95/max: `0.01 / 0.51 / 8328.24 ms`

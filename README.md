@@ -2,9 +2,9 @@
 
 EduAssist Field Kit is a Gemma 4 Good hackathon fork of the EduAssist school
 service platform. It demonstrates a local-first assistant for schools and
-families in low-connectivity contexts, using Gemma 4 as the central reasoning
-and response engine while deterministic tools enforce access control and
-evidence grounding.
+families in low-connectivity contexts, using Gemma 4 to rewrite public,
+non-sensitive school guidance while deterministic tools enforce access control,
+protected-data scope, and evidence grounding.
 
 This repository is intentionally smaller than the source EduAssist platform. It
 contains only synthetic data, a demo app, a local Gemma 4 runtime recipe, and the
@@ -19,11 +19,13 @@ depending on a cloud LLM for every private interaction. EduAssist Field Kit show
 privacy-preserving flow:
 
 1. A family member or school staff user asks a question.
-2. Gemma 4 proposes a narrow tool plan.
-3. The application validates the requested tool call and access scope.
-4. Deterministic tools retrieve public policy documents or synthetic protected
-   student snapshots.
-5. Gemma 4 writes the final answer using only validated evidence.
+2. A deterministic router handles high-confidence public, protected, denial,
+   and policy-boundary paths.
+3. Deterministic tools retrieve public policy documents or scoped synthetic
+   protected student snapshots.
+4. Gemma 4 rewrites only public, non-sensitive answers from validated drafts.
+5. Protected support, denials, policy answers, and document intake remain
+   controlled and auditable.
 6. The UI exposes the tool trace, evidence, and access decision for auditability.
 
 The result is not a generic chatbot. It is a local, auditable school assistance
@@ -32,13 +34,17 @@ workflow aimed at Digital Equity and Future of Education.
 ## Gemma 4 usage
 
 The demo is built around Gemma 4 E4B running locally through llama.cpp with an
-OpenAI-compatible HTTP API. The app uses Gemma in two places:
+OpenAI-compatible HTTP API. The optimized default path uses Gemma in one
+carefully bounded place:
 
-- tool planning: pick from a small, validated set of school-assistance tools;
-- grounded composition: generate the final answer from retrieved evidence and
-  policy decisions.
+- public rewrite: improve the language of public, non-sensitive school guidance
+  from a deterministic draft and public source titles.
 
-The orchestration is a lightweight custom planner-executor-composer loop rather
+The code still includes a Gemma-compatible planner/parser path, but
+high-confidence routing is enabled by default so privacy-sensitive flows do not
+pay model latency and do not depend on model judgment.
+
+The orchestration is a lightweight custom router-executor-rewriter loop rather
 than LangGraph or a specialist supervisor. That keeps the public hackathon fork
 easy to run locally and makes each tool, policy decision, and retrieved evidence
 item visible in the UI trace. Public retrieval is local weighted lexical search
@@ -48,13 +54,14 @@ with bilingual query expansion and auditable `rank`, `score`, and
 The Field Kit branch also adapts the prompts and parsers to Gemma's documented
 function-calling behavior. Planner output may use `parameters`, legacy
 `arguments`, one-call JSON, multi-call JSON, direct JSON arrays, or native
-Gemma `<|tool_call>` markers. The composer requests structured JSON for
-answer/checklist/plan/message/safety-note output, and image notice uploads can
+Gemma `<|tool_call>` markers. The public rewriter asks Gemma for a concise JSON
+answer only after deterministic retrieval has produced a safe draft; checklists,
+plans, messages, and safety notes remain deterministic. Image notice uploads can
 try a local Gemma vision transcription path before falling back to local
 OCR/text extraction.
 
-If the local model is unavailable, the app falls back to a deterministic planner
-and composer so judges can still inspect the product flow. The intended
+If the local model is unavailable, the app falls back to deterministic routing
+and answer assembly so judges can still inspect the product flow. The intended
 submission demo should run with the local Gemma service enabled.
 
 Official references used for this design:
@@ -111,6 +118,10 @@ checklist plus school message draft without a cloud dependency. A sample PNG
 notice is included for image intake; Gemma vision is tried when enabled, then
 the app falls back to embedded demo OCR text or local OCR tooling when
 available.
+
+For a quick evaluator pass, click `Open judge mode` in the app. It runs the
+end-to-end story in one screen: document intake, Gemma public rewrite,
+authorized protected support, privacy denial, and proof metrics.
 
 ## Evaluation
 
@@ -179,7 +190,8 @@ Current local validation:
   cases; denial safety remained 3/3 with zero protected-evidence leaks.
 - stress battery: 1131/1131 passed in deterministic mode after privacy preflight
   hardening; local Gemma submission proof suite passed 110/110 with 10 cases in
-  each stress category.
+  each stress category; latest local Gemma proof latency p50/p95/max is
+  0.01 / 0.51 / 8328.24 ms.
 
 ## Repository map
 

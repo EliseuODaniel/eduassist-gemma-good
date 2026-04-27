@@ -109,7 +109,7 @@ Stratified local Gemma stress:
 uv run python -m eduassist_gemma_good.stress_eval --use-llm --limit 45
 ```
 
-Latest 33-case optimization sample result:
+Earlier 33-case optimization sample result:
 
 - 33/33 passed.
 - 3/3 passed in every stress category.
@@ -131,7 +131,7 @@ Result:
 - 110/110 passed.
 - 10/10 passed in each of 11 stress categories.
 - No failure clusters.
-- Latency p50/p95/max: 0.02 / 0.39 / 8332.83 ms.
+- Latency p50/p95/max: 0.01 / 0.51 / 8328.24 ms.
 
 ## Remaining Risks
 

@@ -4,8 +4,8 @@ Status: active on `codex/field-kit-winning-track`.
 
 ## Orchestration
 
-EduAssist Field Kit currently uses a lightweight custom planner-executor-
-composer loop, not LangGraph and not the specialist supervisor architecture from
+EduAssist Field Kit currently uses a lightweight custom router-executor-
+rewriter loop, not LangGraph and not the specialist supervisor architecture from
 the larger EduAssist platform.
 
 Runtime flow:
@@ -13,24 +13,26 @@ Runtime flow:
 ```text
 Streamlit UI
   -> DemoEngine
-  -> Gemma planner, when enabled
+  -> high-confidence deterministic router
+  -> Gemma planner, optional fallback when enabled
   -> typed tool registry validation
   -> deterministic policy and tool executor
-  -> Gemma grounded composer, when enabled
+  -> Gemma public rewriter, only for non-sensitive public drafts
   -> action output and audit trace
 ```
 
 The Gemma-facing contract is intentionally flexible at the parsing boundary and
-strict at the execution boundary. The planner prompt follows Gemma 4
+strict at the execution boundary. The optional planner prompt follows Gemma 4
 function-calling guidance and the parser accepts `parameters`, legacy
 `arguments`, one-call JSON, multi-call JSON, direct JSON arrays, and native
-Gemma `<|tool_call>` markers. After parsing, every call is validated against
-the typed registry before execution. The composer asks Gemma for structured JSON
-that feeds the action-output panel; invalid structure falls back to
-deterministic templates. The executor also completes one narrow workflow: when
-Gemma has selected an authorized student snapshot for an explicit recovery or
-study-plan request but omits `build_study_plan`, the application appends that
-second tool call before execution.
+Gemma `<|tool_call>` markers. After parsing, every call is validated against the
+typed registry before execution. In the optimized default path, high-confidence
+Python routing handles public retrieval, protected support, denials, document
+intake, and public policy-boundary questions without asking Gemma to decide
+access. Gemma is reserved for rewriting public, non-sensitive answers from
+validated drafts and public source titles. Action-output structure is merged
+from deterministic templates, so checklists, message drafts, plans, and safety
+notes do not depend on arbitrary model formatting.
 
 The choice is deliberate for this hackathon fork:
 
@@ -38,10 +40,11 @@ The choice is deliberate for this hackathon fork:
   infrastructure.
 - The tool surface is small enough that a graph framework would add dependency
   and explanation overhead without improving the demo outcome.
-- Student-data access must stay deterministic and auditable; the model proposes
-  tool calls, but Python validates names, arguments, and persona scope.
+- Student-data access must stay deterministic and auditable; the model is never
+  the privacy boundary for protected data.
 - The public repository should communicate the Gemma 4 value clearly: local
-  planning, local composition, local document intake, and explicit tool traces.
+  public-language improvement, optional local planning, local document intake,
+  and explicit tool traces.
 - The original production-style platform can still compare LangGraph,
   specialist supervisors, and other orchestration paths later; this fork is the
   focused competition artifact.
@@ -49,7 +52,8 @@ The choice is deliberate for this hackathon fork:
 This does not reject LangGraph. It postpones it until there is a larger graph
 with retries, interrupts, memory, long-running tasks, or multiple specialist
 agents. For the current product story, the winning architecture is the smallest
-auditable loop that proves local Gemma plus deterministic tools.
+auditable loop that proves local Gemma public rewriting plus deterministic
+tools.
 
 ## Retrieval
 

@@ -105,7 +105,7 @@ On April 27, 2026, the expanded offline and stress suites passed locally:
   of the local model hot path while still using Gemma to rewrite public,
   non-sensitive answers from validated drafts.
 - Local Gemma submission proof latency p50/p95/max:
-  0.02 / 0.39 / 8332.83 ms.
+  0.01 / 0.51 / 8328.24 ms.
 
 This is not a benchmark of raw model intelligence. It is a product regression
 suite that tests the core promises of the submission:

@@ -7,7 +7,8 @@ Included:
 
 - Gemma 4 E4B local runtime recipe through llama.cpp;
 - Streamlit demo app;
-- Python tool planner, policy layer, and grounded composer;
+- Python router, tool policy layer, public rewriter, and deterministic action
+  outputs;
 - synthetic public and protected school data;
 - small regression evaluation;
 - submission writeup and demo script.
