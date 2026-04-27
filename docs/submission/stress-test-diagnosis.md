@@ -117,7 +117,7 @@ Latest 33-case optimization sample result:
 - Latency p50/p95/max: 0.02 / 0.38 / 7845.71 ms.
 - High-confidence deterministic routing bypassed Gemma for denial, protected
   data, document-intake, style-wrapped public, and public policy-boundary cases;
-  Gemma remained active for concise public synthesis.
+  Gemma remained active only as a public, non-sensitive answer rewriter.
 
 Balanced submission Gemma suite:
 
@@ -131,7 +131,7 @@ Result:
 - 110/110 passed.
 - 10/10 passed in each of 11 stress categories.
 - No failure clusters.
-- Latency p50/p95/max: 0.02 / 0.36 / 7707.03 ms.
+- Latency p50/p95/max: 0.02 / 0.39 / 8332.83 ms.
 
 ## Remaining Risks
 

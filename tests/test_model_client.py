@@ -105,11 +105,18 @@ def test_structured_composer_json_is_validated() -> None:
 def test_composition_prompt_keeps_structured_shape_for_local_gemma_reliability() -> None:
     from eduassist_gemma_good.model_client import composition_prompt
 
-    prompt = composition_prompt("What documents are needed?", PERSONAS["public"], ())
+    prompt = composition_prompt(
+        "What documents are needed?",
+        PERSONAS["public"],
+        (),
+        draft_answer="Bring enrollment documents.",
+    )
 
     content = prompt[0]["content"]
     assert '"answer": "final answer for the user"' in content
     assert '"action_output"' in content
+    assert "Draft public answer" in content
+    assert "Bring enrollment documents." in content
     assert "Do not wrap the JSON in Markdown fences" in content
 
 

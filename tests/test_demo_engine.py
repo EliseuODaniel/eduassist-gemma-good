@@ -84,10 +84,10 @@ def test_policy_preflight_bypasses_bad_model_plan() -> None:
 
 def test_fast_router_skips_gemma_planner_for_high_confidence_public_question() -> None:
     engine = DemoEngine(use_llm=True)
-    prompts: list[str] = []
+    calls: list[tuple[str, float | None]] = []
 
     def capture_chat(messages, *args, **kwargs) -> ModelText:
-        prompts.append(messages[0]["content"])
+        calls.append((messages[0]["content"], kwargs.get("timeout")))
         return ModelText(
             text=(
                 '{"answer":"Bring enrollment documents.",'
@@ -102,11 +102,36 @@ def test_fast_router_skips_gemma_planner_for_high_confidence_public_question() -
 
     response = engine.answer("What documents do families need for enrollment?", "public")
 
-    assert len(prompts) == 1
-    assert "writing a school-assistance answer" in prompts[0]
-    assert "function-calling planner" not in prompts[0]
+    assert len(calls) == 1
+    prompt, timeout = calls[0]
+    assert timeout == engine.settings.gemma_rewrite_timeout_seconds
+    assert "rewriting a public, non-sensitive school-assistance answer" in prompt
+    assert "function-calling planner" not in prompt
     assert response.runtime_mode == "gemma"
     assert [result.call.name for result in response.tool_results] == ["search_public_knowledge"]
+    assert "Draft public answer" in prompt
+    assert "action_output" in response.structured_output
+
+
+def test_public_rewrite_answer_string_gets_deterministic_action_output() -> None:
+    engine = DemoEngine(use_llm=True)
+
+    def answer_only_chat(*args, **kwargs) -> ModelText:
+        return ModelText(
+            text='{"answer":"Families can bring enrollment documents to the school office."}',
+            runtime_mode="gemma",
+        )
+
+    engine.gemma.chat = answer_only_chat
+
+    response = engine.answer("What documents do families need for enrollment?", "public")
+
+    assert response.runtime_mode == "gemma"
+    assert response.answer == "Families can bring enrollment documents to the school office."
+    assert response.structured_output["action_output"]["title"] == "Family guidance output"
+    assert (
+        "public school documents only" in response.structured_output["action_output"]["safety_note"]
+    )
 
 
 def test_guardian_student_plan_is_allowed() -> None:
@@ -271,6 +296,35 @@ def test_styled_public_question_skips_gemma_composer() -> None:
     assert response.runtime_mode == "fallback"
     assert response.access_decision == "public"
     assert len(response.answer) < 700
+    assert "No public excerpt available" not in response.answer
+
+
+def test_public_policy_question_skips_gemma_rewrite() -> None:
+    engine = DemoEngine(use_llm=True)
+    calls = 0
+
+    def counting_chat(*args, **kwargs) -> ModelText:
+        nonlocal calls
+        calls += 1
+        return ModelText(text='{"answer":"Should not be used"}', runtime_mode="gemma")
+
+    engine.gemma.chat = counting_chat
+
+    response = engine.answer("Can public visitors see student grades?", "public")
+
+    assert calls == 0
+    assert response.runtime_mode == "fallback"
+    assert response.access_decision == "public"
+    assert "Public visitors can see school policies" in response.answer
+
+
+def test_public_fallback_excerpt_keeps_single_line_headed_documents_readable() -> None:
+    engine = DemoEngine(use_llm=False)
+
+    response = engine.answer("What documents do families need for enrollment?", "public")
+
+    assert "Enrollment And Reenrollment: Enrollment And Reenrollment" in response.answer
+    assert "No public excerpt available" not in response.answer
 
 
 def test_private_admin_data_request_is_denied() -> None:

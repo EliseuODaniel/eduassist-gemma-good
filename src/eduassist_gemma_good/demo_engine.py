@@ -149,6 +149,12 @@ PUBLIC_POLICY_QUESTION_PHRASES = (
     "politica de",
     "visitantes publicos",
 )
+PUBLIC_REWRITE_BYPASS_TERMS = (
+    "plain language",
+    "low-connectivity",
+    "portugues simples",
+    "responda em portugues",
+)
 
 
 class DemoEngine:
@@ -479,27 +485,15 @@ class DemoEngine:
         if any(item.access == "protected" for result in results for item in result.evidence):
             return self._fallback_compose(results, question), "fallback", {}
 
-        if (
-            self.use_llm
-            and self.settings.gemma_enable_composer
-            and self._should_use_gemma_composer(question, results)
-        ):
-            response = self.gemma.chat(
-                composition_prompt(question, persona, results),
-                max_tokens=420,
-                temperature=0.2,
+        deterministic_answer = self._fallback_compose(results, question)
+        if self._should_use_gemma_composer(question, results):
+            answer, mode, structured_output = self._rewrite_public_answer(
+                question,
+                persona,
+                results,
+                deterministic_answer,
             )
-            if response is not None:
-                parsed = parse_json_object(response.text)
-                if self.settings.gemma_enable_structured_composer and parsed:
-                    structured = parse_composition_json(parsed)
-                    if structured is not None:
-                        answer, structured_output = structured
-                        return answer, "gemma", structured_output
-                answer = parse_json_string_field(response.text, "answer")
-                if answer is not None:
-                    return answer, "gemma", {}
-                return response.text, "gemma", {}
+            return answer, mode, structured_output
         return self._fallback_compose(results, question), "fallback", {}
 
     def _should_use_gemma_composer(
@@ -508,18 +502,105 @@ class DemoEngine:
         results: Sequence[ToolResult],
     ) -> bool:
         normalized = normalize_text(question)
-        style_terms = (
-            "plain language",
-            "low-connectivity",
-            "portugues simples",
-            "responda em portugues",
-        )
         return (
-            any(result.call.name == "search_public_knowledge" for result in results)
+            self.use_llm
+            and self.settings.gemma_enable_composer
+            and any(result.call.name == "search_public_knowledge" for result in results)
             and not self._looks_like_public_policy_question(normalized)
-            and not any(term in normalized for term in style_terms)
+            and not any(term in normalized for term in PUBLIC_REWRITE_BYPASS_TERMS)
             and len(question) <= 90
         )
+
+    def _rewrite_public_answer(
+        self,
+        question: str,
+        persona: Persona,
+        results: Sequence[ToolResult],
+        deterministic_answer: str,
+    ) -> tuple[str, RuntimeMode, dict]:
+        response = self.gemma.chat(
+            composition_prompt(question, persona, results, draft_answer=deterministic_answer),
+            max_tokens=220,
+            temperature=0.2,
+            timeout=self.settings.gemma_rewrite_timeout_seconds,
+        )
+        if response is None:
+            return (
+                deterministic_answer,
+                "fallback",
+                self._deterministic_public_structured_output(results),
+            )
+
+        parsed = parse_json_object(response.text)
+        if self.settings.gemma_enable_structured_composer and parsed:
+            structured = parse_composition_json(parsed)
+            if structured is not None:
+                answer, structured_output = structured
+                return (
+                    answer,
+                    "gemma",
+                    self._merge_public_structured_output(results, structured_output),
+                )
+
+        answer = parse_json_string_field(response.text, "answer")
+        if answer is not None:
+            return answer, "gemma", self._deterministic_public_structured_output(results)
+        return (
+            deterministic_answer,
+            "fallback",
+            self._deterministic_public_structured_output(results),
+        )
+
+    def _deterministic_public_structured_output(
+        self,
+        results: Sequence[ToolResult],
+    ) -> dict:
+        source_title = "public school guidance"
+        for result in results:
+            if result.call.name != "search_public_knowledge":
+                continue
+            documents = result.payload.get("documents", [])
+            if documents and isinstance(documents[0], dict):
+                source_title = str(documents[0].get("title", source_title))
+                break
+        return {
+            "action_output": {
+                "title": "Family guidance output",
+                "checklist": [
+                    "Use public school documents for this guidance.",
+                    "Review the public guidance returned by the school knowledge base.",
+                    "Collect any documents, dates, or office hours mentioned in the answer.",
+                    "Use in-person support if the family cannot complete the step online.",
+                    f"Keep source reference: {source_title}.",
+                ],
+                "plan": [],
+                "message": "Hello, I need help confirming the next public school procedure.",
+                "safety_note": "This output uses public school documents only.",
+            }
+        }
+
+    def _merge_public_structured_output(
+        self,
+        results: Sequence[ToolResult],
+        structured_output: dict,
+    ) -> dict:
+        base = self._deterministic_public_structured_output(results)
+        action_output = structured_output.get("action_output")
+        if not isinstance(action_output, dict):
+            return base
+        base_action = base["action_output"]
+        return {
+            "action_output": {
+                "title": action_output.get("title") or base_action["title"],
+                "checklist": [
+                    *base_action["checklist"],
+                    *[item for item in action_output.get("checklist", []) if isinstance(item, str)],
+                ],
+                "plan": [item for item in action_output.get("plan", []) if isinstance(item, str)],
+                "message": action_output.get("message") or base_action["message"],
+                "safety_note": action_output.get("safety_note") or base_action["safety_note"],
+            }
+        }
 
     def _fallback_compose(self, results: Sequence[ToolResult], question: str = "") -> str:
         denied = [result for result in results if result.status == "denied"]
@@ -568,7 +649,9 @@ class DemoEngine:
             if not line:
                 continue
             if line.startswith("#"):
-                continue
+                line = line.lstrip("#").strip()
+                if not line:
+                    continue
             cleaned_lines.append(line.removeprefix("- ").strip())
         return " ".join(cleaned_lines) if cleaned_lines else "No public excerpt available."
 

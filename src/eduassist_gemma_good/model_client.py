@@ -45,6 +45,7 @@ class GemmaClient:
         *,
         max_tokens: int = 700,
         temperature: float = 0.4,
+        timeout: float | None = None,
     ) -> ModelText | None:
         try:
             response = self.client.chat.completions.create(
@@ -53,6 +54,7 @@ class GemmaClient:
                 temperature=temperature,
                 top_p=0.95,
                 max_tokens=max_tokens,
+                timeout=timeout,
             )
         except Exception:
             return None
@@ -178,24 +180,24 @@ def composition_prompt(
     question: str,
     persona: Persona,
     results: Sequence[ToolResult],
+    *,
+    draft_answer: str | None = None,
 ) -> list[dict[str, str]]:
-    result_payload = [
-        {
-            "tool": result.call.name,
-            "status": result.status,
-            "payload": result.payload,
-            "evidence": [item.__dict__ for item in result.evidence],
-        }
+    public_sources = [
+        {"title": item.title, "source_id": item.source_id}
         for result in results
+        for item in result.evidence
+        if item.access == "public"
     ]
     return [
         {
             "role": "user",
             "content": (
-                "You are Gemma 4 writing a school-assistance answer from validated tool "
-                "results. Use only the data below. If access was denied, do not reveal "
-                "protected data. Keep the answer concise and use the same language as the "
-                "question when possible.\n\n"
+                "You are Gemma 4 rewriting a public, non-sensitive school-assistance "
+                "answer from a validated deterministic draft. Use only the data below and the "
+                "draft answer. Do not add facts, names, grades, absences, behavior notes, "
+                "or protected student details. Keep the answer concise and use the same "
+                "language as the question when possible.\n\n"
                 "Return only JSON with this shape:\n"
                 "{\n"
                 '  "answer": "final answer for the user",\n'
@@ -220,8 +222,9 @@ def composition_prompt(
                 "access reason without protected data.\n\n"
                 f"Persona: {persona.label}\n"
                 f"Question: {question}\n"
-                "Validated tool results:\n"
-                f"{json.dumps(result_payload, ensure_ascii=False, indent=2)}"
+                f"Draft public answer:\n{draft_answer or ''}\n"
+                "Public source titles:\n"
+                f"{json.dumps(public_sources, ensure_ascii=False, indent=2)}"
             ),
         },
     ]

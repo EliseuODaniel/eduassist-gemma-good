@@ -60,11 +60,14 @@ lookup after persona authorization.
 Gemma 4 E4B is served locally through llama.cpp and an OpenAI-compatible HTTP
 API. The application uses it in two stages:
 
-1. Tool planning. Gemma receives the question, persona, authorized synthetic
-   student ids, and the allowed tool schemas. It returns a compact JSON plan.
-2. Grounded composition. Gemma receives only validated tool results and writes
-   the final answer. The prompt forbids revealing protected data after denials
-   and asks for concise answers grounded in evidence.
+1. Optional tool planning. When the high-confidence deterministic router is
+   disabled or cannot classify a request, Gemma receives the question, persona,
+   authorized synthetic student ids, and allowed tool schemas, then returns a
+   compact JSON plan.
+2. Public answer rewriting. In the default optimized path, deterministic Python
+   performs routing, authorization, denials, protected-data composition, policy
+   answers, and document-intake outputs. Gemma only rewrites public,
+   non-sensitive answers from validated drafts and public source titles.
 
 This matches the Gemma 4 design strengths documented by Google: local/edge
 deployment, user/model prompt formatting, long context, multilingual behavior,
@@ -75,9 +78,9 @@ it as a generic chat model. Planner instructions are embedded in the user turn
 to match Gemma's instruction-tuned prompt guidance. The parser accepts Gemma's
 documented `parameters` style, one-call JSON, multi-call JSON, direct JSON
 arrays, legacy `arguments`, and native `<|tool_call>` markers. The composer asks
-Gemma for structured JSON containing the answer plus a checklist, plan, message
-draft, and safety note; if that structure is invalid, deterministic templates
-preserve the same UI contract.
+Gemma to rewrite only public, non-sensitive drafts. The structured checklist,
+message, plan, and safety note are merged from deterministic public templates so
+the UI contract does not depend on arbitrary model formatting.
 
 The executor includes a narrow deterministic completion step for recovery-plan
 requests: if Gemma selects an authorized student snapshot but omits the
