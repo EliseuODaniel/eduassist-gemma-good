@@ -16,6 +16,7 @@ from .tool_registry import is_planner_tool, tool_schemas
 
 JSON_OBJECT_RE = re.compile(r"\{.*\}", re.DOTALL)
 JSON_ARRAY_RE = re.compile(r"\[.*\]", re.DOTALL)
+JSON_STRING_FIELD_TEMPLATE = r'"{field}"\s*:\s*"(?P<value>(?:\\.|[^"\\])*)"'
 NATIVE_TOOL_CALL_RE = re.compile(
     r"<\|tool_call>call:(?P<name>\w+)\{(?P<args>.*?)\}<tool_call\|>",
     re.DOTALL,
@@ -119,6 +120,20 @@ def parse_json_array(text: str) -> list[Any] | None:
     return None
 
 
+def parse_json_string_field(text: str, field: str) -> str | None:
+    pattern = re.compile(JSON_STRING_FIELD_TEMPLATE.format(field=re.escape(field)), re.DOTALL)
+    match = pattern.search(text)
+    if not match:
+        return None
+    try:
+        value = json.loads(f'"{match.group("value")}"')
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(value, str) or not value.strip():
+        return None
+    return value.strip()
+
+
 def planner_prompt(
     question: str,
     persona: Persona,
@@ -192,6 +207,8 @@ def composition_prompt(
                 '    "safety_note": "why this output is safe"\n'
                 "  }\n"
                 "}\n\n"
+                "Do not wrap the JSON in Markdown fences. Keep the final answer under "
+                "120 words unless a short checklist is required.\n\n"
                 "Action output conventions:\n"
                 "- Public guidance: title 'Family guidance output', checklist includes "
                 "the public guidance source, and safety_note mentions public school "

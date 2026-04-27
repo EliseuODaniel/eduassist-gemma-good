@@ -11,6 +11,7 @@ from .model_client import (
     composition_prompt,
     parse_composition_json,
     parse_json_object,
+    parse_json_string_field,
     planner_prompt,
 )
 from .policy import infer_access_intent
@@ -469,7 +470,7 @@ class DemoEngine:
         if self.use_llm and self.settings.gemma_enable_composer:
             response = self.gemma.chat(
                 composition_prompt(question, persona, results),
-                max_tokens=420,
+                max_tokens=700,
                 temperature=0.2,
             )
             if response is not None:
@@ -479,6 +480,9 @@ class DemoEngine:
                     if structured is not None:
                         answer, structured_output = structured
                         return answer, "gemma", structured_output
+                answer = parse_json_string_field(response.text, "answer")
+                if answer is not None:
+                    return answer, "gemma", {}
                 return response.text, "gemma", {}
         return self._fallback_compose(results), "fallback", {}
 

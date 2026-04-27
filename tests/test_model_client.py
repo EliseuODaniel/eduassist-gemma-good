@@ -4,6 +4,7 @@ from eduassist_gemma_good.model_client import (
     parse_composition_json,
     parse_json_array,
     parse_json_object,
+    parse_json_string_field,
     planner_prompt,
 )
 from eduassist_gemma_good.schema import PERSONAS
@@ -99,3 +100,12 @@ def test_structured_composer_json_is_validated() -> None:
     answer, structured = result
     assert answer == "Use the school office."
     assert structured["action_output"]["checklist"] == ["Bring documents."]
+
+
+def test_json_string_field_parser_recovers_answer_from_truncated_composer_json() -> None:
+    answer = parse_json_string_field(
+        '{ "answer": "Bring a guardian ID and proof of residence.", "action_output": {',
+        "answer",
+    )
+
+    assert answer == "Bring a guardian ID and proof of residence."
