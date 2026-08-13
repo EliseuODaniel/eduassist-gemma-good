@@ -23,8 +23,12 @@ class Settings:
     gemma_api_key: str
     gemma_model: str
     gemma_request_timeout_seconds: float
+    gemma_rewrite_timeout_seconds: float
     gemma_enable_planner: bool
+    gemma_enable_fast_router: bool
     gemma_enable_composer: bool
+    gemma_enable_structured_composer: bool
+    gemma_enable_vision: bool
     data_dir: Path = DATA_DIR
 
 
@@ -38,6 +42,10 @@ def load_settings() -> Settings:
             "ggml-org_gemma-4-E4B-it-GGUF_gemma-4-e4b-it-Q4_K_M.gguf",
         ),
         gemma_request_timeout_seconds=float(os.getenv("GEMMA_REQUEST_TIMEOUT_SECONDS", "120")),
+        gemma_rewrite_timeout_seconds=float(os.getenv("GEMMA_REWRITE_TIMEOUT_SECONDS", "4")),
         gemma_enable_planner=_bool_env("GEMMA_ENABLE_PLANNER", True),
+        gemma_enable_fast_router=_bool_env("GEMMA_ENABLE_FAST_ROUTER", True),
         gemma_enable_composer=_bool_env("GEMMA_ENABLE_COMPOSER", True),
+        gemma_enable_structured_composer=_bool_env("GEMMA_ENABLE_STRUCTURED_COMPOSER", True),
+        gemma_enable_vision=_bool_env("GEMMA_ENABLE_VISION", True),
     )

@@ -48,6 +48,7 @@ class AssistantResponse:
     tool_results: tuple[ToolResult, ...]
     evidence: tuple[Evidence, ...]
     safety_notes: tuple[str, ...] = ()
+    structured_output: dict[str, Any] = field(default_factory=dict)
 
 
 PERSONAS = {

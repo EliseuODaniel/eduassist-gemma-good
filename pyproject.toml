@@ -6,12 +6,15 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "openai>=1.75.0",
+    "pillow>=10.0.0",
+    "pypdf>=6.10.2",
     "python-dotenv>=1.0.1",
     "streamlit>=1.44.0",
 ]
 
 [project.scripts]
 eduassist-gemma-good-eval = "eduassist_gemma_good.eval_runner:main"
+eduassist-gemma-good-stress = "eduassist_gemma_good.stress_eval:main"
 
 [dependency-groups]
 dev = [

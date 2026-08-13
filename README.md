@@ -1,28 +1,31 @@
-# EduAssist Local for Gemma 4 Good
+# EduAssist Field Kit for Gemma 4 Good
 
-EduAssist Local is a Gemma 4 Good hackathon fork of the EduAssist school service
-platform. It demonstrates a local-first assistant for schools and families in
-low-connectivity contexts, using Gemma 4 as the central reasoning and response
-engine while deterministic tools enforce access control and evidence grounding.
+EduAssist Field Kit is a Gemma 4 Good hackathon fork of the EduAssist school
+service platform. It demonstrates a local-first assistant for schools and
+families in low-connectivity contexts, using Gemma 4 to rewrite public,
+non-sensitive school guidance while deterministic tools enforce access control,
+protected-data scope, and evidence grounding.
 
 This repository is intentionally smaller than the source EduAssist platform. It
 contains only synthetic data, a demo app, a local Gemma 4 runtime recipe, and the
 submission writeup assets needed for a public hackathon repo.
 
-![EduAssist Local submission cover](docs/submission/assets/eduassist-local-cover.svg)
+![EduAssist Field Kit submission cover](docs/submission/assets/eduassist-local-cover.svg)
 
 ## Why this project
 
 Schools often need to answer operational and student-support questions without
-depending on a cloud LLM for every private interaction. EduAssist Local shows a
+depending on a cloud LLM for every private interaction. EduAssist Field Kit shows a
 privacy-preserving flow:
 
 1. A family member or school staff user asks a question.
-2. Gemma 4 proposes a narrow tool plan.
-3. The application validates the requested tool call and access scope.
-4. Deterministic tools retrieve public policy documents or synthetic protected
-   student snapshots.
-5. Gemma 4 writes the final answer using only validated evidence.
+2. A deterministic router handles high-confidence public, protected, denial,
+   and policy-boundary paths.
+3. Deterministic tools retrieve public policy documents or scoped synthetic
+   protected student snapshots.
+4. Gemma 4 rewrites only public, non-sensitive answers from validated drafts.
+5. Protected support, denials, policy answers, and document intake remain
+   controlled and auditable.
 6. The UI exposes the tool trace, evidence, and access decision for auditability.
 
 The result is not a generic chatbot. It is a local, auditable school assistance
@@ -31,14 +34,34 @@ workflow aimed at Digital Equity and Future of Education.
 ## Gemma 4 usage
 
 The demo is built around Gemma 4 E4B running locally through llama.cpp with an
-OpenAI-compatible HTTP API. The app uses Gemma in two places:
+OpenAI-compatible HTTP API. The optimized default path uses Gemma in one
+carefully bounded place:
 
-- tool planning: pick from a small, validated set of school-assistance tools;
-- grounded composition: generate the final answer from retrieved evidence and
-  policy decisions.
+- public rewrite: improve the language of public, non-sensitive school guidance
+  from a deterministic draft and public source titles.
 
-If the local model is unavailable, the app falls back to a deterministic planner
-and composer so judges can still inspect the product flow. The intended
+The code still includes a Gemma-compatible planner/parser path, but
+high-confidence routing is enabled by default so privacy-sensitive flows do not
+pay model latency and do not depend on model judgment.
+
+The orchestration is a lightweight custom router-executor-rewriter loop rather
+than LangGraph or a specialist supervisor. That keeps the public hackathon fork
+easy to run locally and makes each tool, policy decision, and retrieved evidence
+item visible in the UI trace. Public retrieval is local weighted lexical search
+with bilingual query expansion and auditable `rank`, `score`, and
+`matched_terms` metadata.
+
+The Field Kit branch also adapts the prompts and parsers to Gemma's documented
+function-calling behavior. Planner output may use `parameters`, legacy
+`arguments`, one-call JSON, multi-call JSON, direct JSON arrays, or native
+Gemma `<|tool_call>` markers. The public rewriter asks Gemma for a concise JSON
+answer only after deterministic retrieval has produced a safe draft; checklists,
+plans, messages, and safety notes remain deterministic. Image notice uploads can
+try a local Gemma vision transcription path before falling back to local
+OCR/text extraction.
+
+If the local model is unavailable, the app falls back to deterministic routing
+and answer assembly so judges can still inspect the product flow. The intended
 submission demo should run with the local Gemma service enabled.
 
 Official references used for this design:
@@ -46,7 +69,12 @@ Official references used for this design:
 - Kaggle challenge: https://www.kaggle.com/competitions/gemma-4-good-hackathon
 - Gemma 4 launch: https://blog.google/innovation-and-ai/technology/developers-tools/gemma-4/
 - Gemma model card: https://ai.google.dev/gemma/docs/model_card
-- Gemma function calling guide: https://ai.google.dev/gemma/docs/capabilities/function-calling
+- Gemma 4 function calling guide:
+  https://ai.google.dev/gemma/docs/capabilities/text/function-calling-gemma4
+- Gemma prompt formatting:
+  https://ai.google.dev/gemma/docs/core/prompt-structure
+- Gemma visual data prompting:
+  https://ai.google.dev/gemma/docs/capabilities/vision/prompt-with-visual-data
 
 ## Quick start
 
@@ -81,10 +109,19 @@ make app
 
 Open http://localhost:8501.
 
-The app includes `Demo scenario` and `Prepared question` selectors populated
-from the same 24-question regression set used by `make eval`. Choosing a
-prepared question loads the matching persona and expected tool/access outcome,
-while still leaving the question text editable for live exploration.
+On the `codex/field-kit-winning-track` branch, the app is reframed as
+EduAssist Field Kit. It includes `Field kit workflow` and `Scenario card`
+selectors populated from the same expanded question battery used by
+`make eval`. The `Document intake` workflow can read local TXT, Markdown, or PDF
+school notices, extract dates/documents/support channels, and produce a family
+checklist plus school message draft without a cloud dependency. A sample PNG
+notice is included for image intake; Gemma vision is tried when enabled, then
+the app falls back to embedded demo OCR text or local OCR tooling when
+available.
+
+For a quick evaluator pass, click `Open judge mode` in the app. It runs the
+end-to-end story in one screen: document intake, Gemma public rewrite,
+authorized protected support, privacy denial, and proof metrics.
 
 ## Evaluation
 
@@ -103,6 +140,41 @@ uv run python -m eduassist_gemma_good.eval_runner --use-llm
 Reports are written to `artifacts/eval_report.json` and
 `artifacts/eval_report.md`.
 
+Run a small representative Gemma smoke without spending time on the full suite:
+
+```bash
+uv run python -m eduassist_gemma_good.eval_runner --use-llm \
+  --case-id public_enrollment_01 \
+  --case-id protected_guardian_02 \
+  --case-id denied_guardian_01
+```
+
+Run the larger curated Gemma representative suite:
+
+```bash
+uv run python -m eduassist_gemma_good.eval_runner --use-llm \
+  --representative-gemma-suite
+```
+
+Run the broad stress battery:
+
+```bash
+uv run python -m eduassist_gemma_good.stress_eval
+```
+
+Run a stratified stress sample with local Gemma:
+
+```bash
+uv run python -m eduassist_gemma_good.stress_eval --use-llm --limit 45
+```
+
+Run the 110-case submission proof suite with local Gemma:
+
+```bash
+uv run python -m eduassist_gemma_good.stress_eval --use-llm \
+  --submission-gemma-suite
+```
+
 Current local validation:
 
 - Gemma runtime: `ggml-org/gemma-4-E4B-it-GGUF`, file
@@ -111,17 +183,37 @@ Current local validation:
 - CUDA offload confirmed by llama.cpp logs: `offloaded 43/43 layers to GPU`;
 - generation-time GPU utilization observed at 86-92% with about 4.6 GB VRAM in
   use;
-- Gemma-enabled evaluation: 24/24 passed, pass rate 1.0.
+- expanded offline evaluation: 181/181 passed, pass rate 1.0, with 54/54
+  restricted-data denials and zero denial leak failures.
+- curated Gemma representative suite: 12/12 passed with local Gemma across
+  public information, authorized support, privacy guardrails, and Portuguese
+  cases; denial safety remained 3/3 with zero protected-evidence leaks.
+- stress battery: 1131/1131 passed in deterministic mode after privacy preflight
+  hardening; local Gemma submission proof suite passed 110/110 with 10 cases in
+  each stress category; latest local Gemma proof latency p50/p95/max is
+  0.01 / 0.51 / 8328.24 ms.
 
 ## Repository map
 
 - `src/eduassist_gemma_good/` - demo app and local-first assistant engine.
 - `data/demo/public/` - synthetic public school documents.
 - `data/demo/protected/` - synthetic protected student snapshots.
-- `data/demo/evals/` - small evaluation set for demo regression checks.
+- `data/demo/evals/` - seed evaluation cases; generated templates expand the
+  Field Kit regression battery.
+- `data/demo/notices/` - sample school notices for the Field Kit document intake.
 - `infra/compose/` - local Gemma 4 E4B service and optional demo-web service.
 - `docs/submission/` - hackathon writeup, demo script, evaluation plan, and
   implementation status.
+- `docs/strategy/orchestration-and-retrieval.md` - architecture decision for the
+  custom orchestration loop and local retrieval path.
+- `docs/strategy/gemma-4-optimization.md` - official-doc-backed Gemma prompt,
+  tool-call, structured-output, and vision optimization notes.
+- `docs/submission/evidence/sample-outputs.md` - concrete sample outputs for
+  the demo story.
+- `docs/submission/stress-test-diagnosis.md` - broad adversarial question
+  battery, initial failures found, fixes applied, and remaining risks.
+- `docs/submission/media-gallery.md` - versioned SVG assets and video order for
+  the Kaggle media gallery.
 - `docs/submission/kaggle-submission.md` - title, summary, writeup, links, and
   final checklist for the Kaggle form.
 
